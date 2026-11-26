@@ -5,15 +5,17 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence } from 'framer-motion';
 import {
   AlarmClock, ArrowRight, CalendarClock, CalendarDays, Droplets, Inbox, ListTodo, Moon, Quote, Sparkles,
-  Star, Sunrise, Target, Wallet,
+  Star, Sunrise, Target, Wallet, Calculator,
 } from 'lucide-react';
 import { db } from '@/db/db';
 import type { Task } from '@/db/types';
 import { alive, getDay, getReview, moveUnfinished, type DayView } from '@/actions';
-import { addDays, fmtDayLong, minToTime, nowTime, timeToMin, today } from '@/lib/dates';
-import { fmtMoney, plural } from '@/lib/format';
+import { addDays, fmtDayLong, fmtRelative, minToTime, nowTime, timeToMin, today } from '@/lib/dates';
+import { cx, fmtMoney, plural } from '@/lib/format';
+import { findCategory } from '@/lib/categories';
+import { QuickMoney } from '@/modules/finance/QuickMoney';
 import { Button, Card, Empty } from '@/ui/primitives';
-import { Ring } from '@/ui/feedback';
+import { Bar, Ring } from '@/ui/feedback';
 import { useToast } from '@/ui/overlay';
 import { TaskItem } from '@/modules/tasks/TaskItem';
 import { TaskEditor } from '@/modules/tasks/TaskEditor';
@@ -237,6 +239,9 @@ function NextWidget({ day, now }: { day: DayView; now: string }) {
 
 function MoneyWidget({ day }: { day: DayView }) {
   const m = day.money;
+  const [quick, setQuick] = useState(false);
+  const b = m.monthBudget;
+  const pct = b && b.amount > 0 ? (b.spent / b.amount) * 100 : 0;
   return (
     <Card title="Деньги" icon={<Wallet size={18} />} action={<Link to="/finance" className="text-sm text-sky-600 dark:text-sky-300">Финансы</Link>}>
       <div className="grid grid-cols-3 gap-2">
@@ -244,7 +249,36 @@ function MoneyWidget({ day }: { day: DayView }) {
         <Stat label="Сегодня" value={fmtMoney(Math.round(m.spentToday))} />
         <Stat label="За месяц" value={fmtMoney(Math.round(m.spentMonth))} />
       </div>
-      {!m.hasData && <p className="mt-3 text-xs text-muted">Запишите расход через «+»: например «кофе 250».</p>}
+      {m.accounts.length > 1 && (
+        <ul className="mt-3 space-y-1 text-sm">
+          {m.accounts.slice(0, 4).map((a) => (
+            <li key={a.id} className="flex justify-between gap-2">
+              <span className="truncate text-muted">{a.name}</span>
+              <span className={cx('tabular-nums font-medium', a.balance < 0 && 'text-red-500 dark:text-red-300')}>{fmtMoney(Math.round(a.balance * 100) / 100, a.currency)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {b && (
+        <div className="mt-3">
+          <div className="mb-1 flex justify-between text-sm">
+            <span className="text-muted">Бюджет месяца</span>
+            <span className={cx('tabular-nums', pct > 100 ? 'font-semibold text-red-500 dark:text-red-300' : 'text-muted')}>
+              {pct > 100 ? `сверх на ${fmtMoney(Math.round(b.spent - b.amount))}` : `осталось ${fmtMoney(Math.round(b.amount - b.spent))}`}
+            </span>
+          </div>
+          <Bar value={pct} danger={pct > 100} />
+        </div>
+      )}
+      {m.overBudget.length > 0 && (
+        <p className="mt-2 text-xs text-red-500 dark:text-red-300">Превышен бюджет: {m.overBudget.map((c) => c === '__total' ? 'весь месяц' : findCategory(c)?.name ?? c).join(', ')}</p>
+      )}
+      {m.upcoming.length > 0 && (
+        <p className="mt-2 truncate text-xs text-muted">Скоро: {m.upcoming.map((u) => `${u.title} ${fmtMoney(u.amount, u.currency)} (${fmtRelative(u.date).toLowerCase()})`).join(' · ')}</p>
+      )}
+      <Button size="sm" variant="soft" className="mt-3 w-full" icon={<Calculator size={15} />} onClick={() => setQuick(true)}>Записать расход</Button>
+      {!m.hasData && <p className="mt-2 text-xs text-muted">Или через «+»: например «кофе 250».</p>}
+      <QuickMoney open={quick} onClose={() => setQuick(false)} />
     </Card>
   );
 }

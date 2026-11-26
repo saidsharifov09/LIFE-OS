@@ -84,3 +84,69 @@ describe('actions', () => {
     expect(s.spentToday).toBe(9200);
   });
 });
+
+describe('finance actions', () => {
+  it('перевод, копилка и удаление перевода копилки', async () => {
+    const { addAccount, addTransfer, addSavings, moveSavings, financeData, deleteTransaction } = await import('./index');
+    const a = await addAccount({ name: 'Карта', kind: 'card', currency: 'RUB', initialBalance: 10000 });
+    const b = await addAccount({ name: 'Наличные', kind: 'cash', currency: 'RUB', initialBalance: 0 });
+    await addTransfer({ fromId: a.id, toId: b.id, amount: 3000 });
+    const g = await addSavings({ name: 'Отпуск', target: 50000 });
+    await moveSavings(g.id, 2000, a.id);
+    let d = await financeData();
+    expect(d.balances.get(a.id)).toBe(5000);
+    expect(d.balances.get(b.id)).toBe(3000);
+    expect((await db.savings.get(g.id))?.saved).toBe(2000);
+    const s = await moneySummary();
+    expect(s.spentToday).toBe(0); // переводы — не расходы
+    const t = d.txs.find((x) => x.savingsId)!;
+    await deleteTransaction(t.id);
+    d = await financeData();
+    expect(d.balances.get(a.id)).toBe(7000);
+    expect((await db.savings.get(g.id))?.saved).toBe(0);
+    await undoLast();
+    expect((await db.savings.get(g.id))?.saved).toBe(2000);
+  });
+
+  it('регулярный платёж: оплата и следующая дата', async () => {
+    const { addRecurring, payRecurring, skipRecurring } = await import('./index');
+    const r = await addRecurring({ title: 'Интернет', amount: 600, startDate: '2026-11-05', recurrence: { freq: 'monthly', interval: 1 }, category: 'phone' });
+    await payRecurring(r.id, { date: '2026-11-05' });
+    expect((await db.recurring.get(r.id))?.nextDate).toBe('2026-12-05');
+    const txs = await db.transactions.toArray();
+    expect(txs).toHaveLength(1);
+    expect(txs[0]).toMatchObject({ amount: 600, category: 'phone', recurringId: r.id, note: 'Интернет' });
+    await skipRecurring(r.id);
+    expect((await db.recurring.get(r.id))?.nextDate).toBe('2027-01-05');
+    await undoLast();
+    await undoLast();
+    expect((await db.recurring.get(r.id))?.nextDate).toBe('2026-11-05');
+    expect(await db.transactions.count()).toBe(0);
+  });
+
+  it('долги и бюджет в сводке', async () => {
+    const { addDebt, repayDebt, setBudget } = await import('./index');
+    const d = await addDebt({ person: 'Али', direction: 'they_owe', amount: 1000 });
+    await repayDebt(d.id, 400);
+    expect((await db.debts.get(d.id))?.closed).toBe(false);
+    await repayDebt(d.id, 700);
+    expect(await db.debts.get(d.id)).toMatchObject({ paid: 1000, closed: true });
+    await setBudget('cafe', 200);
+    await addExpense({ amount: 250, category: 'cafe' });
+    const s = await moneySummary();
+    expect(s.monthBudget).toEqual({ amount: 200, spent: 250 });
+    expect(s.overBudget).toEqual(['cafe']);
+    await setBudget('cafe', 0);
+    expect((await moneySummary()).monthBudget).toBeNull();
+  });
+
+  it('импорт CSV пропускает дубли', async () => {
+    const { importTransactions } = await import('./index');
+    const { fromCSV } = await import('@/lib/finance');
+    const { items } = fromCSV('Дата;Тип;Сумма;Счёт;Комментарий\n2026-11-01;Расход;250;Карта;кофе\n2026-11-02;Доход;1000;Карта;зарплата\n');
+    expect(await importTransactions(items)).toEqual({ added: 2, dup: 0 });
+    expect(await importTransactions(items)).toEqual({ added: 0, dup: 2 });
+    const accs = await db.accounts.toArray();
+    expect(accs.map((a) => a.name)).toEqual(['Карта']);
+  });
+});

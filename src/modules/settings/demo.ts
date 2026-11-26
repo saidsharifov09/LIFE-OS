@@ -1,14 +1,17 @@
 // Демо-данные: создаются только по кнопке и удаляются одной кнопкой (все записи помечены demo: true).
 import { db, DATA_TABLES } from '@/db/db';
-import { addAccount, addEvent, addExpense, addIncome, addLater, addNote, addTask, capture, runAction, setTop } from '@/actions';
+import {
+  addAccount, addDebt, addEvent, addExpense, addIncome, addLater, addNote, addRecurring, addSavings, setBudget, addTask, addTransfer, capture, runAction, setTop,
+} from '@/actions';
 import { addDays, startOfWeek, today } from '@/lib/dates';
 
 export async function seedDemo() {
   const t = today();
   await runAction('Демо-данные', async () => {
     const demo = true;
-    await addAccount({ name: 'Карта', kind: 'card', currency: 'RUB', initialBalance: 45000, demo });
-    await addAccount({ name: 'Наличные', kind: 'cash', currency: 'RUB', initialBalance: 5000, demo });
+    const card = await addAccount({ name: 'Карта', kind: 'card', currency: 'RUB', initialBalance: 45000, color: '#38bdf8', demo });
+    const cash = await addAccount({ name: 'Наличные', kind: 'cash', currency: 'RUB', initialBalance: 5000, color: '#34d399', demo });
+    await addAccount({ name: 'Сомони', kind: 'cash', currency: 'TJS', initialBalance: 1200, color: '#fbbf24', demo });
 
     const a = await addTask({ title: 'Подготовить отчёт', date: t, time: '11:00', priority: 3, category: 'work', subtasks: ['Собрать цифры', 'Сделать графики', 'Отправить'], demo });
     const b = await addTask({ title: 'Позвонить маме', date: t, time: '19:00', category: 'personal', demo });
@@ -31,7 +34,25 @@ export async function seedDemo() {
     await addExpense({ amount: 250, note: 'Кофе', category: 'cafe', date: t, demo });
     await addExpense({ amount: 1840, note: 'Продукты', category: 'food', date: addDays(t, -1), demo });
     await addExpense({ amount: 420, note: 'Такси', category: 'transport', date: addDays(t, -2), demo });
-    await addIncome({ amount: 80000, note: 'Зарплата', category: 'salary', date: addDays(t, -5), demo });
+    await addIncome({ amount: 80000, note: 'Зарплата', category: 'salary', date: addDays(t, -5), accountId: card.id, demo });
+    // Траты за прошлые месяцы — чтобы аналитике было что показать
+    const past: [number, string, string, number][] = [
+      [3200, 'Продукты', 'food', 12], [890, 'Кафе', 'cafe', 15], [1500, 'Такси', 'transport', 20], [650, 'Интернет', 'phone', 25],
+      [2700, 'Продукты', 'food', 40], [2300, 'Кроссовки', 'clothes', 45], [1200, 'Кино', 'fun', 50], [4100, 'Продукты', 'food', 70],
+      [950, 'Аптека', 'health', 75], [600, 'Кофе', 'cafe', 8], [1300, 'Продукты', 'food', 4],
+    ];
+    for (const [amount, note, category, ago] of past) await addExpense({ amount, note, category, date: addDays(t, -ago), accountId: card.id, demo });
+    await addIncome({ amount: 78000, note: 'Зарплата', category: 'salary', date: addDays(t, -35), accountId: card.id, demo });
+    await addIncome({ amount: 78000, note: 'Зарплата', category: 'salary', date: addDays(t, -66), accountId: card.id, demo });
+    await addTransfer({ fromId: card.id, toId: cash.id, amount: 3000, date: addDays(t, -3), note: 'Снял наличные', demo });
+    await addRecurring({ title: 'Интернет', amount: 650, category: 'phone', startDate: addDays(t, 2), recurrence: { freq: 'monthly', interval: 1 }, accountId: card.id, demo });
+    await addRecurring({ title: 'Яндекс Плюс', amount: 399, category: 'subs', startDate: addDays(t, 9), recurrence: { freq: 'monthly', interval: 1 }, subscription: true, accountId: card.id, demo });
+    await addRecurring({ title: 'Аренда', amount: 25000, category: 'home', startDate: addDays(t, -1), recurrence: { freq: 'monthly', interval: 1 }, accountId: card.id, demo });
+    await addDebt({ person: 'Али', direction: 'they_owe', amount: 2000, due: addDays(t, 5), note: 'за билеты', demo });
+    await addDebt({ person: 'Брат', direction: 'i_owe', amount: 50, currency: 'USD', demo });
+    await addSavings({ name: 'Отпуск', target: 120000, saved: 35000, deadline: addDays(t, 180), color: '#2dd4bf', demo });
+    await addSavings({ name: 'Новый ноутбук', target: 70000, saved: 12000, color: '#a78bfa', demo });
+    for (const [category, amount] of [['cafe', 3000], ['food', 15000], ['fun', 2000]] as const) await setBudget(category, amount, demo);
 
     await capture('купить подарок Зарине до пятницы', demo);
     await capture('обед 650', demo);

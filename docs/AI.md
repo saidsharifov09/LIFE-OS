@@ -38,8 +38,15 @@
 | `deleteInbox(id)`, `updateInboxText(id, text)` | удалить, исправить |
 
 ### Деньги — `src/actions/money.ts`
-`addExpense({ amount, currency?, category?, date?, note?, accountId? })`, `addIncome(...)`, `updateTransaction`,
-`deleteTransaction`, `addAccount`, `getRates()`, `moneySummary(date)`.
+- Операции: `addExpense({ amount, currency?, category?, date?, note?, accountId? })`, `addIncome(...)`,
+  `addTransfer({ fromId, toId, amount, toAmount? })`, `updateTransaction`, `deleteTransaction`, `listTransactions()`.
+- Счета: `addAccount`, `updateAccount`, `deleteAccount`, `listAccounts()`.
+- Бюджеты: `setBudget(category, amount)` (0 — убрать; `'__total'` — весь месяц), `listBudgets()`.
+- Регулярные платежи: `addRecurring`, `updateRecurring`, `payRecurring(id)`, `skipRecurring(id)`, `deleteRecurring`, `listRecurring()`.
+- Долги: `addDebt({ person, direction, amount })`, `repayDebt(id, amount)`, `updateDebt`, `deleteDebt`, `listDebts()`.
+- Копилки: `addSavings`, `moveSavings(id, ±amount, accountId?)`, `updateSavings`, `deleteSavings`, `listSavings()`.
+- Курсы и сводки: `getRates()`, `setRates()`, `moneySummary(date)`, `financeData()`, `importTransactions(items)`.
+  Расчёты без БД — `src/lib/finance.ts` (`accountBalances`, `totals`, `byCategory`, `budgetStates`, `toCSV`/`fromCSV`).
 
 ### Прочее — `src/actions/misc.ts`, `src/actions/day.ts`
 `addNote`, `updateNote`, `deleteNote`, `ensureNoteSections`, `addLater`, `updateLater`, `addLogEntry`,
