@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Дизайн-токены «Glassy». Цвета — RGB-тройки для Tailwind (fg/muted/surface/line) ===== */
+:root {
+  /* Светлая тема */
+  --fg: 15 23 42;          /* основной текст */
+  --muted: 71 85 105;      /* вторичный текст (контраст ≥ 4.5:1 на светлом стекле) */
+  --surface: 255 255 255;  /* цвет стекла */
+  --line: 15 23 42;        /* обводки */
+  --glass-alpha: 0.62;
+  --glass-strong: 0.82;
+  --line-alpha: 0.08;
+  --bg: #f4efe9;
+  --blob-1: #fcd9b8;
+  --blob-2: #a5e9e1;
+  --blob-3: #bfdbfe;
+  --shadow: 0 10px 30px -12px rgb(15 23 42 / 0.18);
+  color-scheme: light;
+}
+
+.dark {
+  --fg: 241 245 249;
+  --muted: 168 181 199;    /* slate-300-ish: контраст ≥ 4.5:1 на тёмном стекле */
+  --surface: 30 41 59;
+  --line: 255 255 255;
+  --glass-alpha: 0.42;
+  --glass-strong: 0.72;
+  --line-alpha: 0.1;
+  --bg: #0b1020;
+  --blob-1: #7c3a1d;       /* тёплый янтарный отсвет */
+  --blob-2: #0f766e;       /* бирюза */
+  --blob-3: #1e3a8a;       /* глубокий синий */
+  --shadow: 0 12px 40px -12px rgb(0 0 0 / 0.55);
+  color-scheme: dark;
+}
+
+html, body, #root { height: 100%; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  @apply font-sans text-fg antialiased;
+  background: var(--bg);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* Тёплый размытый фон из «пятен» */
+.app-bg {
+  position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--bg);
+}
+.app-bg::before, .app-bg::after, .app-bg > i {
+  content: ''; position: absolute; border-radius: 9999px; filter: blur(80px); opacity: .55;
+}
+.app-bg::before { width: 60vmax; height: 60vmax; left: -20vmax; top: -18vmax; background: var(--blob-1); }
+.app-bg::after { width: 55vmax; height: 55vmax; right: -22vmax; top: 20vh; background: var(--blob-2); }
+.app-bg > i { width: 50vmax; height: 50vmax; left: 10vw; bottom: -30vmax; background: var(--blob-3); }
+
+@layer components {
+  /* Стеклянная карточка */
+  .glass {
+    background: rgb(var(--surface) / var(--glass-alpha));
+    border: 1px solid rgb(var(--line) / var(--line-alpha));
+    box-shadow: var(--shadow), inset 0 1px 0 rgb(255 255 255 / 0.06);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    backdrop-filter: blur(20px) saturate(150%);
+  }
+  .glass-strong {
+    background: rgb(var(--surface) / var(--glass-strong));
+    border: 1px solid rgb(var(--line) / var(--line-alpha));
+    box-shadow: var(--shadow);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    backdrop-filter: blur(28px) saturate(160%);
+  }
+  .hairline { border-color: rgb(var(--line) / var(--line-alpha)); }
+  .field {
+    @apply w-full rounded-2xl px-4 py-3 text-[16px] text-fg placeholder:text-muted/70 outline-none transition;
+    background: rgb(var(--line) / 0.05);
+    border: 1px solid rgb(var(--line) / 0.1);
+  }
+  .field:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgb(56 189 248 / 0.25); }
+  .grad-text {
+    background: linear-gradient(90deg, #38bdf8, #2dd4bf 50%, #34d399);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .grad-accent { background: linear-gradient(135deg, #38bdf8 0%, #2dd4bf 55%, #34d399 100%); }
+  .focus-ring { @apply outline-none focus-visible:ring-2 focus-visible:ring-accent-sky focus-visible:ring-offset-0; }
+}
+
+/* Упрощённое стекло для слабых устройств (Настройки → «Упростить размытие»)
+   и для тех, кто попросил меньше прозрачности в системе */
+.low-blur .glass, .low-blur .glass-strong { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(var(--surface) / 0.94); }
+.low-blur .app-bg::before, .low-blur .app-bg::after, .low-blur .app-bg > i { filter: blur(40px); opacity: .35; }
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .glass-strong { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(var(--surface) / 0.94); }
+}
+
+/* Безопасные зоны iPhone (вырез и полоска «домой») */
+.pt-safe { padding-top: env(safe-area-inset-top); }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.bottom-safe { bottom: calc(env(safe-area-inset-bottom) + 0.75rem); }
+
+/* Тонкий скроллбар на ноутбуке */
+* { scrollbar-width: thin; scrollbar-color: rgb(var(--line) / 0.18) transparent; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
