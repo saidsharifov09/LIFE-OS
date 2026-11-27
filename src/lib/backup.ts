@@ -1,6 +1,7 @@
 // Формат резервной копии Life OS и шифрование паролем (WebCrypto: PBKDF2 + AES-GCM).
 // Чистые функции без доступа к базе — работа с базой в src/actions/backup.ts.
 import type { BaseRecord, Setting } from '@/db/types';
+import { deriveKey, fromB64, PBKDF2_ITERATIONS, toB64 } from './crypto';
 
 export const BACKUP_FORMAT = 1;
 
@@ -28,33 +29,7 @@ export interface EncryptedBackup {
 }
 
 /** Ключи настроек, которые относятся к устройству и не переносятся копией */
-export const LOCAL_SETTING_KEYS = ['lastBackupAt', 'backupSnoozeUntil'];
-
-const PBKDF2_ITERATIONS = 310_000;
-
-// ---------- base64 без переполнения стека на больших копиях ----------
-function toB64(bytes: Uint8Array): string {
-  let s = '';
-  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-  return btoa(s);
-}
-function fromB64(s: string): Uint8Array<ArrayBuffer> {
-  const bin = atob(s);
-  const out = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
-}
-
-async function deriveKey(password: string, salt: Uint8Array<ArrayBuffer>, iterations: number) {
-  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', hash: 'SHA-256', salt, iterations },
-    base,
-    { name: 'AES-GCM', length: 256 },
-    false,
-    ['encrypt', 'decrypt'],
-  );
-}
+export const LOCAL_SETTING_KEYS = ['lastBackupAt', 'backupSnoozeUntil', 'lastSyncAt'];
 
 export async function encryptBackup(b: Backup, password: string): Promise<EncryptedBackup> {
   const salt = crypto.getRandomValues(new Uint8Array(16));
