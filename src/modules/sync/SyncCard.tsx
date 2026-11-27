@@ -94,12 +94,12 @@ function LoginStep({ onDone, onChangeServer }: { onDone: () => void; onChangeSer
         <Button variant="primary" icon={<Mail size={16} />} disabled={busy} onClick={send}>{busy ? 'Отправляю…' : 'Получить код'}</Button>
       ) : (
         <>
-          <Field label="Код из письма"><Input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} inputMode="numeric" autoComplete="one-time-code" placeholder="123456" onKeyDown={(e) => e.key === 'Enter' && code && verify()} autoFocus /></Field>
+          <Field label="Код или ссылка из письма"><Input value={code} onChange={(e) => setCode(e.target.value.trim())} autoComplete="one-time-code" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="123456 или https://…" onKeyDown={(e) => e.key === 'Enter' && code && verify()} autoFocus /></Field>
           <div className="flex flex-wrap gap-2">
             <Button variant="primary" disabled={busy || code.length < 6} onClick={verify}>{busy ? 'Проверяю…' : 'Войти'}</Button>
             <Button variant="ghost" onClick={() => { setSent(false); setCode(''); }}>Другой email</Button>
           </div>
-          <p className="text-xs text-muted">В письме нет кода, только ссылка? Добавьте код в шаблон письма (инструкция, шаг 4) или откройте ссылку в этом же браузере.</p>
+          <p className="text-xs text-muted">В письме только ссылка «Sign in» / «Confirm your mail»? Не нажимайте её — <b>удерживайте палец</b> на ней → «Скопировать ссылку» → вставьте сюда.</p>
         </>
       )}
       <button className="text-xs text-muted underline" onClick={onChangeServer}>Изменить адрес проекта</button>
