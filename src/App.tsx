@@ -15,6 +15,7 @@ import Placeholder from './modules/placeholder/Placeholder';
 // Тяжёлые разделы грузятся по требованию
 const CalendarPage = lazy(() => import('./modules/calendar/CalendarPage'));
 const ReviewPage = lazy(() => import('./modules/review/ReviewPage'));
+const FinancePage = lazy(() => import('./modules/finance/FinancePage'));
 const SettingsPage = lazy(() => import('./modules/settings/SettingsPage'));
 const DesignPage = lazy(() => import('./modules/design/DesignPage'));
 
@@ -33,10 +34,11 @@ export default function App() {
                   <Route path="/calendar" element={<CalendarPage />} />
                   <Route path="/review" element={<ReviewPage />} />
                   <Route path="/review/:kind" element={<ReviewPage />} />
+                  <Route path="/finance" element={<FinancePage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/design" element={<DesignPage />} />
                   <Route path="/more" element={<MorePage />} />
-                  {['/finance', '/goals', '/health', '/notes', '/later', '/people', '/log', '/search'].map((p) => (
+                  {['/goals', '/health', '/notes', '/later', '/people', '/log', '/search'].map((p) => (
                     <Route key={p} path={p} element={<Placeholder />} />
                   ))}
                   <Route path="*" element={<Navigate to="/" replace />} />

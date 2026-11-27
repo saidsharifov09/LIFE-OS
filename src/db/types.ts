@@ -107,6 +107,60 @@ export interface Transaction extends BaseRecord {
   category?: string | null;
   date: DateStr;
   note?: string;
+  /** Перевод между счетами в разных валютах: сколько пришло на счёт назначения (в его валюте) */
+  toAmount?: number | null;
+  /** Перевод в копилку / из копилки */
+  savingsId?: ID | null;
+  /** Операция создана оплатой регулярного платежа */
+  recurringId?: ID | null;
+}
+
+/** Бюджет на месяц по категории расходов (сумма в рублях). category '__total' — общий бюджет месяца */
+export interface Budget extends BaseRecord {
+  category: string;
+  amount: number;
+}
+
+/** Регулярный платёж или подписка (или регулярный доход) */
+export interface RecurringPayment extends BaseRecord {
+  title: string;
+  kind: 'expense' | 'income';
+  amount: number;
+  currency: Currency;
+  category?: string | null;
+  accountId?: ID | null;
+  /** Первая дата (опора для повторов) */
+  startDate: DateStr;
+  recurrence: Recurrence;
+  /** Ближайшая дата списания */
+  nextDate: DateStr | null;
+  /** Подписка (показывается отдельной пометкой) */
+  subscription?: boolean;
+  active: boolean;
+}
+
+/** Долг: мне должны (they_owe) или я должен (i_owe) */
+export interface Debt extends BaseRecord {
+  person: string;
+  direction: 'they_owe' | 'i_owe';
+  amount: number;
+  currency: Currency;
+  /** Сколько уже вернули */
+  paid: number;
+  due?: DateStr | null;
+  note?: string;
+  closed: boolean;
+}
+
+/** Копилка — цель накоплений */
+export interface SavingsGoal extends BaseRecord {
+  name: string;
+  target: number;
+  currency: Currency;
+  saved: number;
+  deadline?: DateStr | null;
+  color: string;
+  closed?: boolean;
 }
 
 export interface Note extends BaseRecord {

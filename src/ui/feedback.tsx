@@ -62,12 +62,12 @@ export function Ring({ value, size = 96, stroke = 10, children, colors = ['#38bd
 }
 
 // ---------- Полоса прогресса ----------
-export function Bar({ value, danger, className }: { value: number; danger?: boolean; className?: string }) {
+export function Bar({ value, danger, warn, className }: { value: number; danger?: boolean; warn?: boolean; className?: string }) {
   const v = Math.max(0, Math.min(100, value));
   return (
     <div className={cx('h-2 overflow-hidden rounded-full bg-[rgb(var(--line)/0.08)]', className)} role="progressbar" aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100}>
       <motion.div
-        className={cx('h-full rounded-full', danger ? 'bg-gradient-to-r from-orange-400 to-red-500' : 'grad-accent')}
+        className={cx('h-full rounded-full', danger ? 'bg-gradient-to-r from-orange-400 to-red-500' : warn ? 'bg-gradient-to-r from-amber-300 to-orange-400' : 'grad-accent')}
         initial={{ width: 0 }}
         animate={{ width: `${v}%` }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
