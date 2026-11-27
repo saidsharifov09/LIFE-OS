@@ -77,6 +77,19 @@
 - Копия из **более новой** схемы не импортируется (просьба обновить приложение); из более старой — проходит через
   `migrateTables()` в `src/lib/backup.ts`.
 
+## Облако (Этап 4.5)
+
+Схема — `supabase/schema.sql`, инструкция — [docs/SUPABASE.md](SUPABASE.md), код — `src/sync/`.
+
+| Таблица Supabase | Поля |
+|---|---|
+| `records` | `user_id`, `tbl` (имя таблицы или `settings`), `id`, `updated_at` (мс), `deleted`, `data` (base64: iv + AES-GCM от JSON записи), `seq` (номер изменения на сервере) |
+| `vault` | `user_id`, `salt`, `iterations`, `check_data` (зашифрованная контрольная строка) |
+
+На устройстве — отдельная служебная база `lifeos-sync` (не входит в резервные копии): `kv` (ключ шифрования как
+неизвлекаемый CryptoKey, `lastSeq`, `lastSyncAt`, `userId`) и `pushed` (`таблица:id` → хеш последней известной версии).
+Адрес проекта и сессия входа — в localStorage (`lifeos.sync.config`, `lifeos.sync.session`).
+
 ## Версии схемы и миграции
 
 | Версия | Этап | Изменения |

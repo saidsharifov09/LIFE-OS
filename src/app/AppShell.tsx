@@ -9,6 +9,7 @@ import { cx } from '@/lib/format';
 import { NAV, BOTTOM_TABS } from './nav';
 import { useCapture } from '@/modules/capture/CaptureSheet';
 import { useReminders } from '@/modules/calendar/reminders';
+import { SyncBadge } from '@/modules/sync/SyncBadge';
 
 function useInboxCount() {
   return useLiveQuery(async () => (await db.inbox.toArray()).filter((i) => !i.deletedAt && !i.processed).length, [], 0)
@@ -31,6 +32,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-8 w-8" />
           <span className="text-lg font-bold tracking-tight">Life OS</span>
         </div>
+        <SyncBadge link className="mb-3 ml-2" />
         <button
           onClick={() => open()}
           className="grad-accent focus-ring mb-3 flex h-11 items-center justify-center gap-2 rounded-2xl font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:brightness-110 active:scale-[0.98]"

@@ -22,6 +22,7 @@ import { TaskEditor } from '@/modules/tasks/TaskEditor';
 import { useCapture } from '@/modules/capture/CaptureSheet';
 import { quoteOfDay } from './quotes';
 import { BackupBanner } from '@/modules/backup/BackupBanner';
+import { SyncBadge } from '@/modules/sync/SyncBadge';
 
 export const DEFAULT_WIDGETS = ['review', 'progress', 'top', 'tasks', 'schedule', 'next', 'money', 'inbox', 'habits', 'quote'] as const;
 export type WidgetId = (typeof DEFAULT_WIDGETS)[number];
@@ -68,7 +69,10 @@ export default function HomePage() {
   return (
     <>
       <header className="mb-5 pt-2">
-        <p className="text-sm font-medium text-muted">{fmtDayLong(date)}</p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-medium text-muted">{fmtDayLong(date)}</p>
+          <SyncBadge link className="lg:hidden" />
+        </div>
         <h1 className="text-[30px] font-bold leading-tight tracking-tight lg:text-4xl">
           {greeting()}<span className="grad-text">!</span>
         </h1>

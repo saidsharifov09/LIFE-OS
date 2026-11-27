@@ -9,6 +9,7 @@ import { Button, Card, PageHeader, Segmented, Switch } from '@/ui/primitives';
 import { useToast } from '@/ui/overlay';
 import { clearDemo, hasDemo, seedDemo } from './demo';
 import { BackupCard } from '@/modules/backup/BackupCard';
+import { SyncCard } from '@/modules/sync/SyncCard';
 import { listTrash } from '@/actions';
 
 export default function SettingsPage() {
@@ -20,7 +21,7 @@ export default function SettingsPage() {
   const { hash } = useLocation();
   // Переход с баннера «Пора сделать копию» — прокрутить к карточке
   useEffect(() => {
-    if (hash === '#backup') setTimeout(() => document.getElementById('backup')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    if (hash === '#backup' || hash === '#sync') setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
   }, [hash]);
   const [perm, setPerm] = useState(() => ('Notification' in window ? Notification.permission : 'unsupported'));
 
@@ -28,6 +29,7 @@ export default function SettingsPage() {
     <>
       <PageHeader title="Настройки" />
       <div className="grid gap-4 lg:grid-cols-2">
+        <div id="sync" className="scroll-mt-4 lg:col-span-2"><SyncCard /></div>
         <div id="backup" className="scroll-mt-4 lg:col-span-2"><BackupCard /></div>
 
         <Card title="Оформление" icon={<Palette size={18} />}>
@@ -73,7 +75,7 @@ export default function SettingsPage() {
         </Card>
 
         <Card title="Данные" icon={<Database size={18} />}>
-          <p className="text-sm text-muted">Всё хранится на этом устройстве (IndexedDB) и работает без интернета. Облачная синхронизация — Этап 4.5.</p>
+          <p className="text-sm text-muted">Всё хранится на этом устройстве (IndexedDB) и работает без интернета. Облако — по желанию, в карточке выше.</p>
           <Link to="/trash" className="focus-ring mt-3 flex items-center gap-3 rounded-2xl bg-[rgb(var(--line)/0.05)] px-3 py-2.5 hover:bg-[rgb(var(--line)/0.09)]">
             <Trash2 size={18} className="text-muted" />
             <span className="flex-1 font-medium">Корзина</span>
@@ -81,7 +83,7 @@ export default function SettingsPage() {
             <ChevronRight size={16} className="text-muted" />
           </Link>
           <Button className="mt-3" variant="danger" size="sm" icon={<Trash2 size={15} />} onClick={async () => {
-            if (!confirm('Удалить ВСЕ данные на этом устройстве (минуя корзину)? Сначала сохраните резервную копию. Это нельзя отменить.')) return;
+            if (!confirm('Удалить ВСЕ данные на этом устройстве (минуя корзину)? Если включена синхронизация, они удалятся и в облаке, и на других устройствах. Сначала сохраните резервную копию. Это нельзя отменить.')) return;
             for (const t of DATA_TABLES) await db.table(t).clear();
             toast.show('Все данные удалены');
           }}>Удалить все данные</Button>
