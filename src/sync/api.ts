@@ -85,6 +85,32 @@ export function sessionFromHash(hash: string): Session | null {
   }
 }
 
+export type LoginInput =
+  | { kind: 'code'; code: string }
+  | { kind: 'link'; tokenHash: string; type: string }
+  | { kind: 'session'; session: Session }
+  | { kind: 'bad' };
+
+/**
+ * Что пользователь вставил в поле входа: 6-значный код, ссылку из письма
+ * (…/auth/v1/verify?token=…&type=magiclink) или адрес, куда ссылка привела (#access_token=…).
+ * Ссылка нужна, если шаблон письма в Supabase нельзя изменить и кода в письме нет.
+ */
+export function parseLoginInput(raw: string): LoginInput {
+  const s = raw.trim();
+  if (/^\d{6,10}$/.test(s)) return { kind: 'code', code: s };
+  if (/access_token=/.test(s)) {
+    const session = sessionFromHash(s.slice(s.indexOf('#') + 1));
+    return session ? { kind: 'session', session } : { kind: 'bad' };
+  }
+  try {
+    const u = new URL(s);
+    const tokenHash = u.searchParams.get('token') ?? u.searchParams.get('token_hash');
+    if (tokenHash) return { kind: 'link', tokenHash, type: u.searchParams.get('type') || 'magiclink' };
+  } catch { /* не ссылка */ }
+  return { kind: 'bad' };
+}
+
 async function req(input: string, init: RequestInit): Promise<Response> {
   try {
     return await fetch(input, init);
@@ -129,8 +155,14 @@ export class SupabaseApi implements CloudApi {
 
   /** Подтвердить код из письма → сессия */
   async verifyCode(email: string, token: string): Promise<Session> {
+    const input = parseLoginInput(token);
+    if (input.kind === 'bad') throw new AuthError('Вставьте 6-значный код или ссылку «Sign in» из письма целиком.');
+    if (input.kind === 'session') { setSession(input.session); return input.session; }
+    const body = input.kind === 'code'
+      ? { type: 'email', email, token: input.code }
+      : { type: input.type, token_hash: input.tokenHash };
     const r = await req(`${this.cfg.url}/auth/v1/verify`, {
-      method: 'POST', headers: this.authHeaders(), body: JSON.stringify({ type: 'email', email, token: token.trim() }),
+      method: 'POST', headers: this.authHeaders(), body: JSON.stringify(body),
     });
     if (!r.ok) throw new AuthError(humanAuthError(await errorText(r)));
     const s = toSession(await r.json());

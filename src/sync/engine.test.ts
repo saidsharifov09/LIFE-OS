@@ -136,3 +136,17 @@ describe('синхронизация', () => {
     expect(cloud.rows.get(`tasks:${t.id}`)!.data).toBe(row.data);
   });
 });
+
+describe('вход', () => {
+  it('понимает код, ссылку из письма и адрес после перехода', async () => {
+    const { parseLoginInput } = await import('./api');
+    expect(parseLoginInput(' 123456 ')).toEqual({ kind: 'code', code: '123456' });
+    expect(parseLoginInput('https://abc.supabase.co/auth/v1/verify?token=9f8e7d&type=magiclink&redirect_to=https://x.github.io/LIFE-OS/'))
+      .toEqual({ kind: 'link', tokenHash: '9f8e7d', type: 'magiclink' });
+    expect(parseLoginInput('https://abc.supabase.co/auth/v1/verify?token=aa11&type=signup')).toMatchObject({ kind: 'link', type: 'signup' });
+    const payload = btoa(JSON.stringify({ sub: 'u1', email: 'a@b.c', exp: 2e9 })).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+    const r = parseLoginInput(`https://x.github.io/LIFE-OS/#access_token=h.${payload}.s&refresh_token=rt&type=magiclink`);
+    expect(r).toMatchObject({ kind: 'session', session: { user: { id: 'u1' }, refresh_token: 'rt' } });
+    expect(parseLoginInput('привет')).toEqual({ kind: 'bad' });
+  });
+});
