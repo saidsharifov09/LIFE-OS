@@ -21,6 +21,7 @@ import { TaskItem } from '@/modules/tasks/TaskItem';
 import { TaskEditor } from '@/modules/tasks/TaskEditor';
 import { useCapture } from '@/modules/capture/CaptureSheet';
 import { quoteOfDay } from './quotes';
+import { BackupBanner } from '@/modules/backup/BackupBanner';
 
 export const DEFAULT_WIDGETS = ['review', 'progress', 'top', 'tasks', 'schedule', 'next', 'money', 'inbox', 'habits', 'quote'] as const;
 export type WidgetId = (typeof DEFAULT_WIDGETS)[number];
@@ -73,6 +74,7 @@ export default function HomePage() {
         </h1>
       </header>
       <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <BackupBanner />
         {order.filter((id) => id in widgets).map((id) => widgets[id])}
       </div>
       <TaskEditor open={!!editing || creating} task={editing} defaultDate={date} onClose={() => { setEditing(null); setCreating(false); }} />

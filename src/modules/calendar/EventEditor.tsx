@@ -10,6 +10,7 @@ import { cx } from '@/lib/format';
 import { Button, Chip, Field, Input, Label, Switch, Textarea } from '@/ui/primitives';
 import { Sheet, useToast } from '@/ui/overlay';
 import { RecurrencePicker } from '@/ui/RecurrencePicker';
+import { IcsButton } from '@/ui/IcsButton';
 
 interface Draft {
   title: string; date: DateStr; allDay: boolean; start: string; duration: number;
@@ -134,6 +135,15 @@ export function EventEditor({ event, occurrenceDate, open, onClose, defaults }: 
           </div>
         </div>
         <Field label="Заметки"><Textarea value={d.notes} onChange={(e) => set('notes', e.target.value)} placeholder="Адрес, ссылка, что взять…" /></Field>
+        {event && (
+          <IcsButton
+            defaultAlarms={d.allDay ? undefined : [d.remind >= 0 ? -d.remind : -15]}
+            item={() => ({
+              uid: `event-${event.id}`, title: d.title.trim() || event.title, description: d.notes || undefined,
+              date: d.date, start: d.allDay ? null : d.start, duration: d.duration, recurrence: d.recurrence, exdates: event.exdates,
+            })}
+          />
+        )}
       </div>
     </Sheet>
   );

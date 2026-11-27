@@ -16,6 +16,7 @@ import { Bar, fireConfetti, Ring } from '@/ui/feedback';
 import { Sheet, useToast } from '@/ui/overlay';
 import { CategoryBadge } from '@/ui/CategoryIcon';
 import { RecurrencePicker } from '@/ui/RecurrencePicker';
+import { IcsButton } from '@/ui/IcsButton';
 import { AccountPicker, Amount, CategoryGrid, CurrencyPicker, MoneyField, parseNum, type FinanceData } from './shared';
 
 // ====================== Бюджеты ======================
@@ -229,6 +230,13 @@ function RecurringEditor({ item, open, onClose, data }: { item: RecurringPayment
           <div className="flex items-center gap-3"><span className="flex-1">Это подписка</span><Switch checked={d.subscription} onChange={(v) => set('subscription', v)} label="Подписка" /></div>
         )}
         {item && <div className="flex items-center gap-3"><span className="flex-1">Активен</span><Switch checked={d.active} onChange={(v) => set('active', v)} label="Активен" /></div>}
+        {item && (
+          <IcsButton item={() => ({
+            uid: `pay-${item.id}`, title: `${d.kind === 'income' ? '💰' : '💳'} ${d.title.trim() || item.title} — ${fmtMoney(parseNum(d.amount) || item.amount, d.currency)}`,
+            date: d.startDate, start: null, recurrence: d.recurrence,
+            description: 'Регулярный платёж из Life OS. Отметьте «Оплачено» в приложении.',
+          })} />
+        )}
       </div>
     </Sheet>
   );
