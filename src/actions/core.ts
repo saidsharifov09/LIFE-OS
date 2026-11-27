@@ -92,6 +92,20 @@ export async function patch<T extends BaseRecord>(t: DataTable, id: string, chan
   return after;
 }
 
+/** Записать запись целиком как есть (импорт копии). updatedAt не меняется. */
+export async function putRaw(t: DataTable, rec: BaseRecord) {
+  remember(t, rec.id, await table(t).get(rec.id));
+  await table(t).put(rec);
+}
+
+/** Удалить запись навсегда (очистка корзины, «заменить» при импорте). Внутри runAction — отменяемо. */
+export async function hardDelete(t: DataTable, id: string) {
+  const before = await table(t).get(id);
+  if (!before) return;
+  remember(t, id, before);
+  await table(t).delete(id);
+}
+
 /** Мягкое удаление (в корзину) */
 export async function softDelete(t: DataTable, id: string) {
   return patch(t, id, { deletedAt: now() });

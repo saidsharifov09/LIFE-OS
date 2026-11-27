@@ -5,6 +5,7 @@ import { Archive, Coins, Download, FileUp, Upload } from 'lucide-react';
 import { getSetting, importTransactions, setRates, setSetting, updateAccount } from '@/actions';
 import { fromCSV, toCSV, type ImportedTx } from '@/lib/finance';
 import { today } from '@/lib/dates';
+import { shareOrDownload } from '@/lib/share';
 import { fmtMoney, plural } from '@/lib/format';
 import { Button, Card, Chip, Input, Label } from '@/ui/primitives';
 import { useToast } from '@/ui/overlay';
@@ -29,16 +30,8 @@ export function FinanceSettings({ data }: { data: FinanceData }) {
   const exportCSV = async () => {
     const csv = toCSV(data.txs, data.allAccounts);
     const name = `life-os-operacii-${today()}.csv`;
-    const file = new File([csv], name, { type: 'text/csv' });
-    // На iPhone — «Поделиться» → «Сохранить в Файлы»; на ноутбуке — обычная загрузка
-    const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean };
-    if (nav.canShare?.({ files: [file] }) && /iPhone|iPad|Android/i.test(navigator.userAgent)) {
-      try { await navigator.share({ files: [file], title: name }); return; } catch { /* отменили — скачаем обычным способом */ }
-    }
-    const url = URL.createObjectURL(file);
-    const a = document.createElement('a');
-    a.href = url; a.download = name; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const r = await shareOrDownload(new File([csv], name, { type: 'text/csv' }));
+    if (r === 'cancelled') return;
     toast.show(`Экспортировано: ${data.txs.length} ${plural(data.txs.length, ['операция', 'операции', 'операций'])}`);
   };
 

@@ -11,6 +11,7 @@ import { cx } from '@/lib/format';
 import { Button, Chip, Field, Input, Label, Segmented, Textarea } from '@/ui/primitives';
 import { Sheet, useToast } from '@/ui/overlay';
 import { Check } from '@/ui/feedback';
+import { IcsButton } from '@/ui/IcsButton';
 import { PRIORITY_LABELS } from './TaskItem';
 
 export interface TaskDraft {
@@ -153,6 +154,12 @@ export function TaskEditor({ task, open, onClose, defaultDate }: {
               onClick={async () => { await setTop(task.id, task.topDate === t0 ? null : t0); onClose(); }}>
               {task.topDate === t0 ? 'Убрать из главных' : 'В 3 главных на сегодня'}
             </Button>
+            {d.date && (
+              <IcsButton item={() => (d.date ? {
+                uid: `task-${task.id}`, title: d.title.trim() || task.title, description: d.notes || undefined,
+                date: d.date, start: d.time, duration: 30, recurrence: d.recurrence,
+              } : null)} />
+            )}
             {!task.eventId && (
               <Button size="sm" variant="soft" icon={<CalendarPlus size={15} />}
                 onClick={async () => { await eventFromTask(task.id); toast.show('Событие создано в календаре', { undo: true }); onClose(); }}>
