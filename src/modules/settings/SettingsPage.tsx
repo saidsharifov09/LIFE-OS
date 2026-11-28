@@ -15,10 +15,11 @@ import { HomeWidgetsCard } from './HomeWidgetsCard';
 import { SectionsCard } from './SectionsCard';
 import { RatesCard } from '@/modules/finance/RatesCard';
 import { PinCard } from '@/modules/pin/PinCard';
+import { AssistantCard } from '@/modules/assistant/AssistantCard';
 
 /** Быстрые переходы по длинной странице настроек; id — якоря (#home ведёт сюда с главной) */
 const JUMPS = [
-  { id: 'sync', label: 'Облако' }, { id: 'backup', label: 'Копии' }, { id: 'home', label: 'Главная' },
+  { id: 'sync', label: 'Облако' }, { id: 'ai', label: 'Помощник' }, { id: 'backup', label: 'Копии' }, { id: 'home', label: 'Главная' },
   { id: 'sections', label: 'Разделы' }, { id: 'money', label: 'Валюты' }, { id: 'pin', label: 'PIN-код' },
   { id: 'look', label: 'Оформление' }, { id: 'data', label: 'Данные' },
 ];
@@ -52,6 +53,7 @@ export default function SettingsPage() {
       </nav>
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         <div id="sync" className="scroll-mt-4 lg:col-span-2"><SyncCard /></div>
+        <div id="ai" className="scroll-mt-4 lg:col-span-2"><AssistantCard /></div>
         <div id="backup" className="scroll-mt-4 lg:col-span-2"><BackupCard /></div>
         <div id="home" className="scroll-mt-4 lg:row-span-2"><HomeWidgetsCard /></div>
         <div id="sections" className="scroll-mt-4"><SectionsCard /></div>

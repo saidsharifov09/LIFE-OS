@@ -7,6 +7,7 @@ import { AppShell } from './app/AppShell';
 import { ToastProvider } from './ui/overlay';
 import { ConfettiHost } from './ui/feedback';
 import { CaptureProvider } from './modules/capture/CaptureSheet';
+import { AssistantProvider } from './modules/assistant/AssistantSheet';
 import { PinLockProvider } from './modules/pin/PinLock';
 import HomePage from './modules/home/HomePage';
 import InboxPage from './modules/inbox/InboxPage';
@@ -38,6 +39,7 @@ export default function App() {
       <PinLockProvider>
       <HashRouter>
         <ToastProvider>
+          <AssistantProvider>
           <CaptureProvider>
             <AppShell>
               <Suspense fallback={<div className="h-40" />}>
@@ -65,6 +67,7 @@ export default function App() {
               </Suspense>
             </AppShell>
           </CaptureProvider>
+          </AssistantProvider>
         </ToastProvider>
       </HashRouter>
       </PinLockProvider>
