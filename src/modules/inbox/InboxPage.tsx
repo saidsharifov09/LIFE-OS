@@ -1,6 +1,6 @@
 // «Входящие»: всё, что записано быстрым захватом. Разбор в один тап.
 import { useLiveQuery } from 'dexie-react-hooks';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Bookmark, CalendarDays, CheckSquare, Clock, Inbox, NotebookPen, Plus, Trash2, Wallet, X, TrendingUp } from 'lucide-react';
 import { db } from '@/db/db';
 import type { CaptureHints, InboxItem } from '@/db/types';
@@ -63,7 +63,7 @@ function InboxCard({ item }: { item: InboxItem }) {
     });
 
   return (
-    <motion.li layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}>
+    <m.li layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}>
       <Card>
         <p className="whitespace-pre-wrap text-[16px] leading-snug">{item.text}</p>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
@@ -88,7 +88,7 @@ function InboxCard({ item }: { item: InboxItem }) {
           </Button>
         </div>
       </Card>
-    </motion.li>
+    </m.li>
   );
 }
 

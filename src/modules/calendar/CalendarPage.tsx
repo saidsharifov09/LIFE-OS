@@ -1,11 +1,11 @@
 // Собственный календарь: день, неделя, месяц. События с длительностью, повторами, цветами; связь с задачами.
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Plus, Repeat } from 'lucide-react';
 import { db } from '@/db/db';
 import type { DateStr, Task } from '@/db/types';
-import { alive, eventsInRange, sortTasks, type Occurrence } from '@/actions';
+import { alive, eventsInRange, moveEvent, moveTask, sortTasks, type Occurrence } from '@/actions';
 import {
   addDays, addMonths, endOfMonth, fmtDayLong, fmtRelative, fromDateStr, minToTime, MONTHS_NOM, startOfMonth,
   startOfWeek, timeToMin, today, WEEKDAYS_SHORT, MONTHS_GEN,
@@ -17,6 +17,8 @@ import { TaskEditor } from '@/modules/tasks/TaskEditor';
 import { EventEditor } from './EventEditor';
 import { useOpenParam } from '@/app/useOpenParam';
 import { TimeGrid } from './TimeGrid';
+import { useTouchDrag } from '@/ui/touchDrag';
+import { useToast } from '@/ui/overlay';
 
 type View = 'day' | 'week' | 'month';
 
@@ -143,16 +145,17 @@ function MonthGrid({ cursor, from, occ, tasks, onSelect, onOpenDay }: {
           return (
             <button
               key={d}
+              data-drop={`day:${d}`}
               onClick={() => onSelect(d)}
               onDoubleClick={() => onOpenDay(d)}
               className={cx(
-                'focus-ring flex min-h-[3.4rem] flex-col items-center rounded-2xl p-1 text-left transition sm:min-h-[5.5rem] sm:items-stretch',
+                'drop-zone focus-ring flex min-h-[3.4rem] flex-col items-center rounded-2xl p-1 text-left transition sm:min-h-[5.5rem] sm:items-stretch',
                 d === cursor ? 'bg-sky-400/15 ring-1 ring-sky-400/50' : 'hover:bg-[rgb(var(--line)/0.05)]',
-                !inMonth && 'opacity-40',
+                !inMonth && 'text-muted',
               )}
               aria-label={`${fmtRelative(d)}: событий ${dayOcc.length}, задач ${dayTasks.length}`}
             >
-              <span className={cx('grid h-7 w-7 place-items-center rounded-full text-[13px] font-semibold tabular-nums sm:mb-0.5', d === t0 && 'grad-accent text-slate-950')}>
+              <span className={cx('grid h-7 w-7 place-items-center rounded-full text-[13px] tabular-nums sm:mb-0.5', inMonth ? 'font-semibold' : 'font-normal', d === t0 && 'grad-accent text-slate-950')}>
                 {fromDateStr(d).getDate()}
               </span>
               {/* iPhone: точки, ноутбук: названия */}
@@ -162,7 +165,7 @@ function MonthGrid({ cursor, from, occ, tasks, onSelect, onOpenDay }: {
               </span>
               <span className="hidden space-y-0.5 sm:block">
                 {dayOcc.slice(0, 2).map((o, i) => (
-                  <span key={i} className="block truncate rounded-md px-1 text-[11px]" style={{ background: o.event.color + '33' }}>{o.event.start ? o.event.start + ' ' : ''}{o.event.title}</span>
+                  <DraggableEvent as="span" key={i} occ={o} className="block cursor-grab truncate rounded-md px-1 text-[11px]" style={{ background: o.event.color + '33' }}>{o.event.start ? o.event.start + ' ' : ''}{o.event.title}</DraggableEvent>
                 ))}
                 {(dayOcc.length > 2 || dayTasks.length > 0) && (
                   <span className="block truncate px-1 text-[10px] text-muted">
@@ -174,6 +177,10 @@ function MonthGrid({ cursor, from, occ, tasks, onSelect, onOpenDay }: {
           );
         })}
       </div>
+      <p className="px-1 pt-2 text-[11px] text-muted">
+        <span className="sm:hidden">Перенести: удерживайте событие или задачу в списке дня и ведите пальцем на нужный день.</span>
+        <span className="hidden sm:inline">Перенести: перетащите событие на другой день (или из списка справа).</span>
+      </p>
     </Card>
   );
 }
@@ -184,16 +191,17 @@ function Agenda({ date, occ, tasks, onOpen, onTask, onAdd, compact }: {
   const empty = !occ.length && !tasks.length;
   return (
     <Card
-      title={<span className={date === today() ? 'text-accent-teal' : ''}>{fmtRelative(date)}</span>}
+      data-drop={`day:${date}`}
+      title={<span className={date === today() ? 'text-teal-700 dark:text-accent-teal' : ''}>{fmtRelative(date)}</span>}
       action={<Button size="sm" variant="ghost" onClick={onAdd} aria-label="Добавить событие"><Plus size={16} /></Button>}
-      className={compact ? '!py-3' : ''}
+      className={cx('drop-zone', compact && '!py-3')}
     >
       {empty ? (
         compact ? <p className="text-sm text-muted">Свободно</p> : <Empty title="Свободный день" hint="Нажмите «+», чтобы добавить событие." />
       ) : (
         <div className="space-y-2">
           {occ.map((o) => (
-            <button key={o.event.id + o.date} onClick={() => onOpen(o)} className="focus-ring flex w-full items-center gap-3 rounded-2xl px-2 py-1.5 text-left hover:bg-[rgb(var(--line)/0.05)]">
+            <DraggableEvent key={o.event.id + o.date} occ={o} onClick={() => onOpen(o)} className="focus-ring flex w-full items-center gap-3 rounded-2xl px-2 py-1.5 text-left hover:bg-[rgb(var(--line)/0.05)]">
               <span className="h-9 w-1.5 shrink-0 rounded-full" style={{ background: o.event.color }} />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[15px] font-medium">{o.event.title}</span>
@@ -202,17 +210,54 @@ function Agenda({ date, occ, tasks, onOpen, onTask, onAdd, compact }: {
                   {o.event.recurrence && <Repeat size={11} />}
                 </span>
               </span>
-            </button>
+            </DraggableEvent>
           ))}
           {tasks.length > 0 && (
-            <ul className={occ.length ? 'hairline border-t pt-1' : ''}>
+            <div className={occ.length ? 'hairline border-t pt-1' : ''}>
               <AnimatePresence initial={false}>
-                {tasks.map((t) => <TaskItem key={t.id} task={t} onOpen={onTask} showDate={false} compact />)}
+                {tasks.map((t) => <DraggableTask key={t.id} task={t} onOpen={onTask} />)}
               </AnimatePresence>
-            </ul>
+            </div>
           )}
         </div>
       )}
     </Card>
   );
+}
+
+// ---------- Перетаскивание на другой день (палец — долгое нажатие, мышь — сразу) ----------
+
+/** Перенос по ключу цели `day:YYYY-MM-DD` (ячейка месяца или карточка дня в списке недели) */
+function useDropOnDay() {
+  const toast = useToast();
+  const dayOf = (key: string) => (key.startsWith('day:') ? key.slice(4) : null);
+  return {
+    event: async (o: Occurrence, key: string) => {
+      const d = dayOf(key);
+      if (!d || d === o.date) return;
+      await moveEvent(o.event.id, o.date, d);
+      toast.show(`Перенесено: ${fmtRelative(d).toLowerCase()}${o.event.recurrence ? ' (вся серия)' : ''}`, { undo: true });
+    },
+    task: async (t: Task, key: string) => {
+      const d = dayOf(key);
+      if (!d || d === t.date) return;
+      await moveTask(t.id, d);
+      toast.show(`Задача — на ${fmtRelative(d).toLowerCase()}`, { undo: true });
+    },
+  };
+}
+
+function DraggableEvent({ occ, as = 'button', className, style, onClick, children }: {
+  occ: Occurrence; as?: 'button' | 'span'; className?: string; style?: CSSProperties; onClick?: () => void; children: ReactNode;
+}) {
+  const drop = useDropOnDay();
+  const drag = useTouchDrag({ onDrop: (key) => drop.event(occ, key) });
+  const Comp = as;
+  return <Comp {...drag} {...(as === 'button' ? { type: 'button' as const } : {})} onClick={onClick} className={className} style={style}>{children}</Comp>;
+}
+
+function DraggableTask({ task, onOpen }: { task: Task; onOpen: (t: Task) => void }) {
+  const drop = useDropOnDay();
+  const drag = useTouchDrag({ onDrop: (key) => drop.task(task, key) });
+  return <ul {...drag}><TaskItem task={task} onOpen={onOpen} showDate={false} compact /></ul>;
 }

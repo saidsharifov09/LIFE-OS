@@ -1,6 +1,6 @@
 // Базовые элементы дизайн-системы: карточка, кнопки, поля, чипы, сегменты.
 import { forwardRef, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react';
-import { motion, type HTMLMotionProps } from 'framer-motion';
+import { m, type HTMLMotionProps } from 'framer-motion';
 import { cx } from '@/lib/format';
 
 // ---------- Карточка ----------
@@ -13,7 +13,7 @@ interface CardProps extends Omit<HTMLMotionProps<'section'>, 'title'> {
 }
 export function Card({ title, icon, action, pad = true, strong, className, children, ...rest }: CardProps) {
   return (
-    <motion.section
+    <m.section
       layout="position"
       className={cx(strong ? 'glass-strong' : 'glass', 'rounded-3xl', pad && 'p-4 sm:p-5', className)}
       {...rest}
@@ -26,7 +26,7 @@ export function Card({ title, icon, action, pad = true, strong, className, child
         </header>
       )}
       {children as ReactNode}
-    </motion.section>
+    </m.section>
   );
 }
 
@@ -45,7 +45,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     glass: 'glass text-fg hover:bg-white/10',
     ghost: 'text-fg hover:bg-[rgb(var(--line)/0.07)]',
     soft: 'bg-[rgb(var(--line)/0.07)] text-fg hover:bg-[rgb(var(--line)/0.12)]',
-    danger: 'bg-red-500/15 text-red-500 dark:text-red-300 hover:bg-red-500/25',
+    danger: 'bg-red-500/15 text-red-700 dark:text-red-300 hover:bg-red-500/25',
   };
   const s = {
     sm: 'h-9 px-3 text-sm gap-1.5 rounded-xl',
@@ -94,6 +94,7 @@ export function Chip({
     <Comp
       type={onClick ? 'button' : undefined}
       onClick={onClick}
+      aria-pressed={onClick && active !== undefined ? active : undefined}
       className={cx(
         'focus-ring inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-medium transition',
         active ? 'bg-sky-400/20 text-sky-700 ring-1 ring-sky-400/50 dark:text-sky-200' : 'bg-[rgb(var(--line)/0.06)] text-muted hover:text-fg',
@@ -125,7 +126,7 @@ export function Segmented<T extends string>({
         >
           {value === o.value && (
             // Без layoutId: он мешает удалению шторок (AnimatePresence) — индикатор просто плавно появляется
-            <motion.span initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.18 }} className="glass-strong absolute inset-0 -z-10 rounded-xl" />
+            <m.span initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.18 }} className="glass-strong absolute inset-0 -z-10 rounded-xl" />
           )}
           {o.label}
         </button>
@@ -171,7 +172,7 @@ export function Switch({ checked, onChange, label }: { checked: boolean; onChang
       className={cx('focus-ring relative h-7 w-12 shrink-0 rounded-full transition-colors', checked ? 'grad-accent' : 'bg-[rgb(var(--line)/0.18)]')}
     >
       {/* Сдвиг через x, а не layout: layout-анимация «отрывала» кружок при перестановке строк списка */}
-      <motion.span initial={false} animate={{ x: checked ? 20 : 0 }} transition={{ type: 'spring', stiffness: 500, damping: 32 }} className="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow" />
+      <m.span initial={false} animate={{ x: checked ? 20 : 0 }} transition={{ type: 'spring', stiffness: 500, damping: 32 }} className="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow" />
     </button>
   );
 }

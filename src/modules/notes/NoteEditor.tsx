@@ -108,7 +108,7 @@ export function NoteEditor({ open, note, defaultSection, sections, onClose }: {
             </>
           )}
           <Button variant="soft" size="icon" aria-pressed={d.pinned} aria-label={d.pinned ? 'Открепить' : 'Закрепить'} title={d.pinned ? 'Открепить' : 'Закрепить сверху'} onClick={() => set('pinned', !d.pinned)}
-            className={cx(d.pinned && '!bg-amber-400/20 text-amber-600 dark:text-amber-300')}>{d.pinned ? <PinOff size={18} /> : <Pin size={18} />}</Button>
+            className={cx(d.pinned && '!bg-amber-400/20 text-amber-700 dark:text-amber-300')}>{d.pinned ? <PinOff size={18} /> : <Pin size={18} />}</Button>
           <Button variant="primary" className="flex-1" onClick={save} disabled={busy}>Готово</Button>
         </div>
       }>

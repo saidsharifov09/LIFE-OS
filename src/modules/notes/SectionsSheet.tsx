@@ -37,7 +37,7 @@ export function SectionsSheet({ open, onClose, sections, counts }: { open: boole
               <span className="w-6 shrink-0 text-center text-xs tabular-nums text-muted" title="Заметок">{counts.get(s.id) ?? 0}</span>
               <Button size="icon" variant="ghost" aria-label="Выше" disabled={i === 0} onClick={() => moveSection(s.id, -1)} className="!w-9"><ArrowUp size={17} /></Button>
               <Button size="icon" variant="ghost" aria-label="Ниже" disabled={i === sections.length - 1} onClick={() => moveSection(s.id, 1)} className="!w-9"><ArrowDown size={17} /></Button>
-              <Button size="icon" variant="ghost" aria-label={`Удалить раздел ${s.name}`} disabled={sections.length <= 1} className="!w-9 text-red-500 dark:text-red-300" onClick={async () => {
+              <Button size="icon" variant="ghost" aria-label={`Удалить раздел ${s.name}`} disabled={sections.length <= 1} className="!w-9 text-red-700 dark:text-red-300" onClick={async () => {
                 const n = counts.get(s.id) ?? 0;
                 if (n && !confirm(`Удалить раздел «${s.name}»? Заметки (${n}) переедут в «Разное».`)) return;
                 try {

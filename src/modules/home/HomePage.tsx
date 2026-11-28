@@ -22,6 +22,7 @@ import { TaskEditor } from '@/modules/tasks/TaskEditor';
 import { useCapture } from '@/modules/capture/CaptureSheet';
 import { quoteOfDay } from './quotes';
 import { BackupBanner } from '@/modules/backup/BackupBanner';
+import { WelcomeCard } from './WelcomeCard';
 import { HabitsWidget, HealthWidget } from './LifeWidgets';
 import { SyncBadge } from '@/modules/sync/SyncBadge';
 import { PeopleWidget } from '@/modules/people/PeopleWidget';
@@ -86,6 +87,7 @@ export default function HomePage() {
         </h1>
       </header>
       <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <WelcomeCard onAddTask={() => setCreating(true)} />
         <BackupBanner />
         {order.filter((id) => id in widgets).map((id) => widgets[id])}
         {order.length === 0 && (
@@ -140,7 +142,7 @@ function ProgressWidget({ day }: { day: DayView }) {
           <p className="text-base font-semibold">
             {total === 0 ? 'Задач на сегодня нет' : left === 0 ? 'Всё сделано! 🎉' : `Осталось ${left} ${plural(left, ['задача', 'задачи', 'задач'])}`}
           </p>
-          {day.overdue.length > 0 && <p className="font-medium text-red-500 dark:text-red-400">Просрочено: {day.overdue.length}</p>}
+          {day.overdue.length > 0 && <p className="font-medium text-red-700 dark:text-red-400">Просрочено: {day.overdue.length}</p>}
           <p className="text-muted">Событий: {day.events.length}</p>
         </div>
       </div>
@@ -150,7 +152,7 @@ function ProgressWidget({ day }: { day: DayView }) {
 
 function TopWidget({ day, onOpen }: { day: DayView; onOpen: (t: Task) => void }) {
   return (
-    <Card title="3 главных дела" icon={<Star size={18} />} action={<Link to="/review/morning" className="text-sm text-sky-600 dark:text-sky-300">Выбрать</Link>}>
+    <Card title="3 главных дела" icon={<Star size={18} />} action={<Link to="/review/morning" className="text-sm text-sky-700 dark:text-sky-300">Выбрать</Link>}>
       {day.top.length === 0 ? (
         <p className="text-sm text-muted">Отметьте до трёх задач звёздочкой в утреннем обзоре или в карточке задачи. Остальное — бонус.</p>
       ) : (
@@ -174,9 +176,9 @@ function TasksWidget({ day, onOpen, onAdd }: { day: DayView; onOpen: (t: Task) =
     >
       {day.overdue.length > 0 && (
         <div className="mb-2 flex items-center gap-2 rounded-2xl bg-red-500/10 px-3 py-2 text-sm">
-          <AlarmClock size={16} className="text-red-500 dark:text-red-400" />
+          <AlarmClock size={16} className="text-red-700 dark:text-red-400" />
           <span className="flex-1">Просрочено: {day.overdue.length}</span>
-          <button className="font-semibold text-sky-600 dark:text-sky-300" onClick={async () => {
+          <button className="font-semibold text-sky-700 dark:text-sky-300" onClick={async () => {
             const n = await moveUnfinished(addDays(today(), -1), today());
             toast.show(`На сегодня: ${n}`, { undo: true });
           }}>Всё на сегодня</button>
@@ -213,7 +215,7 @@ function ScheduleWidget({ day, now }: { day: DayView; now: string }) {
   const slots = slotsOf(day);
   const allDay = day.events.filter((o) => !o.event.start);
   return (
-    <Card title="Расписание" icon={<CalendarDays size={18} />} action={<Link to="/calendar" className="text-sm text-sky-600 dark:text-sky-300">Календарь</Link>}>
+    <Card title="Расписание" icon={<CalendarDays size={18} />} action={<Link to="/calendar" className="text-sm text-sky-700 dark:text-sky-300">Календарь</Link>}>
       {allDay.map((o) => (
         <div key={o.event.id} className="mb-2 rounded-xl px-3 py-1.5 text-sm font-medium" style={{ background: o.event.color + '33' }}>{o.event.title} · весь день</div>
       ))}
@@ -224,10 +226,10 @@ function ScheduleWidget({ day, now }: { day: DayView; now: string }) {
           {slots.map((s, i) => {
             const past = (s.end ?? s.time) < now;
             return (
-              <li key={i} className={past ? 'opacity-50' : ''}>
-                <span className="absolute -left-[5px] mt-1.5 h-2.5 w-2.5 rounded-full" style={{ background: s.color }} />
+              <li key={i}>
+                <span className={cx("absolute -left-[5px] mt-1.5 h-2.5 w-2.5 rounded-full", past && "opacity-50")} style={{ background: s.color }} />
                 <div className="text-xs tabular-nums text-muted">{s.time}{s.end ? `–${s.end}` : ''}</div>
-                <div className={s.done ? 'text-muted line-through' : 'text-[15px]'}>{s.title}</div>
+                <div className={cx('text-[15px]', (s.done || past) && 'text-muted', s.done && 'line-through')}>{s.title}</div>
               </li>
             );
           })}
@@ -263,7 +265,7 @@ function MoneyWidget({ day }: { day: DayView }) {
   const b = m.monthBudget;
   const pct = b && b.amount > 0 ? (b.spent / b.amount) * 100 : 0;
   return (
-    <Card title="Деньги" icon={<Wallet size={18} />} action={<Link to="/finance" className="text-sm text-sky-600 dark:text-sky-300">Финансы</Link>}>
+    <Card title="Деньги" icon={<Wallet size={18} />} action={<Link to="/finance" className="text-sm text-sky-700 dark:text-sky-300">Финансы</Link>}>
       <div className="grid grid-cols-3 gap-2">
         <Stat label="Остаток" value={m.hasAccounts ? fmtMoney(Math.round(m.balance)) : '—'} />
         <Stat label="Сегодня" value={fmtMoney(Math.round(m.spentToday))} />
@@ -274,7 +276,7 @@ function MoneyWidget({ day }: { day: DayView }) {
           {m.accounts.slice(0, 4).map((a) => (
             <li key={a.id} className="flex justify-between gap-2">
               <span className="truncate text-muted">{a.name}</span>
-              <span className={cx('tabular-nums font-medium', a.balance < 0 && 'text-red-500 dark:text-red-300')}>{fmtMoney(Math.round(a.balance * 100) / 100, a.currency)}</span>
+              <span className={cx('tabular-nums font-medium', a.balance < 0 && 'text-red-700 dark:text-red-300')}>{fmtMoney(Math.round(a.balance * 100) / 100, a.currency)}</span>
             </li>
           ))}
         </ul>
@@ -283,15 +285,15 @@ function MoneyWidget({ day }: { day: DayView }) {
         <div className="mt-3">
           <div className="mb-1 flex justify-between text-sm">
             <span className="text-muted">Бюджет месяца</span>
-            <span className={cx('tabular-nums', pct > 100 ? 'font-semibold text-red-500 dark:text-red-300' : 'text-muted')}>
+            <span className={cx('tabular-nums', pct > 100 ? 'font-semibold text-red-700 dark:text-red-300' : 'text-muted')}>
               {pct > 100 ? `сверх на ${fmtMoney(Math.round(b.spent - b.amount))}` : `осталось ${fmtMoney(Math.round(b.amount - b.spent))}`}
             </span>
           </div>
-          <Bar value={pct} danger={pct > 100} />
+          <Bar value={pct} danger={pct > 100} label="Бюджет месяца" />
         </div>
       )}
       {m.overBudget.length > 0 && (
-        <p className="mt-2 text-xs text-red-500 dark:text-red-300">Превышен бюджет: {m.overBudget.map((c) => c === '__total' ? 'весь месяц' : findCategory(c)?.name ?? c).join(', ')}</p>
+        <p className="mt-2 text-xs text-red-700 dark:text-red-300">Превышен бюджет: {m.overBudget.map((c) => c === '__total' ? 'весь месяц' : findCategory(c)?.name ?? c).join(', ')}</p>
       )}
       {m.upcoming.length > 0 && (
         <p className="mt-2 truncate text-xs text-muted">Скоро: {m.upcoming.map((u) => `${u.title} ${fmtMoney(u.amount, u.currency)} (${fmtRelative(u.date).toLowerCase()})`).join(' · ')}</p>

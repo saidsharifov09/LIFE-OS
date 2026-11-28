@@ -39,7 +39,7 @@ export default function TrashPage() {
                   <p className="truncate font-medium">{it.title || 'Без названия'}</p>
                   <p className="text-xs text-muted">
                     {it.kind} · удалено {new Date(it.deletedAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
-                    {' · '}<span className={it.daysLeft <= 3 ? 'text-amber-600 dark:text-amber-300' : ''}>осталось {it.daysLeft} {plural(it.daysLeft, ['день', 'дня', 'дней'])}</span>
+                    {' · '}<span className={it.daysLeft <= 3 ? 'text-amber-700 dark:text-amber-300' : ''}>осталось {it.daysLeft} {plural(it.daysLeft, ['день', 'дня', 'дней'])}</span>
                   </p>
                 </div>
                 <Button size="sm" variant="soft" icon={<RotateCcw size={15} />} onClick={async () => { await restoreFromTrash(it.table, it.id); toast.show('Восстановлено ✓', { undo: true }); }}>Вернуть</Button>

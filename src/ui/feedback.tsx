@@ -1,6 +1,6 @@
 // Индикаторы и отклик: чекбокс с анимацией, кольцо и полоса прогресса, конфетти.
 import { useEffect, useId, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { cx } from '@/lib/format';
 
 // ---------- Чекбокс ----------
@@ -17,16 +17,16 @@ export function Check({ checked, onChange, label, color = '#2dd4bf', size = 26 }
       className="focus-ring group relative grid shrink-0 place-items-center rounded-full"
       style={{ width: size + 14, height: size + 14 }}
     >
-      <motion.span
+      <m.span
         className="grid place-items-center rounded-full border-2"
         style={{ width: size, height: size, borderColor: checked ? 'transparent' : color }}
         animate={{ scale: checked ? [1, 1.25, 1] : 1, backgroundColor: checked ? color : 'rgba(0,0,0,0)' }}
         transition={{ duration: 0.3 }}
       >
         <svg viewBox="0 0 24 24" width={size * 0.62} height={size * 0.62} fill="none" stroke="#0b1020" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round">
-          <motion.path d="M5 12.5l4.5 4.5L19 7.5" pathLength={1} strokeDasharray="1 1" initial={false} animate={{ strokeDashoffset: checked ? 0 : 1 }} transition={{ duration: 0.25, delay: checked ? 0.08 : 0 }} />
+          <m.path d="M5 12.5l4.5 4.5L19 7.5" pathLength={1} strokeDasharray="1 1" initial={false} animate={{ strokeDashoffset: checked ? 0 : 1 }} transition={{ duration: 0.25, delay: checked ? 0.08 : 0 }} />
         </svg>
-      </motion.span>
+      </m.span>
     </button>
   );
 }
@@ -48,7 +48,7 @@ export function Ring({ value, size = 96, stroke = 10, children, colors = ['#38bd
           </linearGradient>
         </defs>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(var(--line) / 0.1)" strokeWidth={stroke} />
-        <motion.circle
+        <m.circle
           cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`url(#${id})`} strokeWidth={stroke} strokeLinecap="round"
           strokeDasharray={c}
           initial={{ strokeDashoffset: c }}
@@ -62,11 +62,12 @@ export function Ring({ value, size = 96, stroke = 10, children, colors = ['#38bd
 }
 
 // ---------- Полоса прогресса ----------
-export function Bar({ value, danger, warn, className }: { value: number; danger?: boolean; warn?: boolean; className?: string }) {
+/** label — что измеряет полоса (для экранного диктора): «Бюджет: Кафе», «Привычка за неделю»… */
+export function Bar({ value, danger, warn, className, label = 'Прогресс' }: { value: number; danger?: boolean; warn?: boolean; className?: string; label?: string }) {
   const v = Math.max(0, Math.min(100, value));
   return (
-    <div className={cx('h-2 overflow-hidden rounded-full bg-[rgb(var(--line)/0.08)]', className)} role="progressbar" aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100}>
-      <motion.div
+    <div className={cx('h-2 overflow-hidden rounded-full bg-[rgb(var(--line)/0.08)]', className)} role="progressbar" aria-label={label} aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100}>
+      <m.div
         className={cx('h-full rounded-full', danger ? 'bg-gradient-to-r from-orange-400 to-red-500' : warn ? 'bg-gradient-to-r from-amber-300 to-orange-400' : 'grad-accent')}
         initial={{ width: 0 }}
         animate={{ width: `${v}%` }}
@@ -109,7 +110,7 @@ export function ConfettiHost() {
               const angle = (i / 28) * Math.PI * 2;
               const dist = 90 + ((i * 37) % 80);
               return (
-                <motion.span
+                <m.span
                   key={i}
                   className="absolute block h-2.5 w-1.5 rounded-sm"
                   style={{ background: COLORS[i % COLORS.length] }}

@@ -14,7 +14,7 @@ export function PeopleWidget() {
   const data = useLiveQuery(async () => ({ bdays: await upcomingBirthdays(7), due: (await peopleToContact()).slice(0, 3) }), []);
   if (!data || (!data.bdays.length && !data.due.length)) return null;
   return (
-    <Card title="Люди" icon={<Users size={18} />} action={<Link to="/people" className="text-sm text-sky-600 dark:text-sky-300">Все</Link>}>
+    <Card title="Люди" icon={<Users size={18} />} action={<Link to="/people" className="text-sm text-sky-700 dark:text-sky-300">Все</Link>}>
       <ul className="space-y-1">
         {data.bdays.map(({ person: p, next }) => (
           <li key={p.id} className={cx('flex items-center gap-3 rounded-2xl p-2', next.daysLeft === 0 && 'bg-pink-400/12')}>
@@ -23,7 +23,7 @@ export function PeopleWidget() {
               <span className="block truncate font-medium">{p.name}</span>
               <span className="flex items-center gap-1 text-xs text-muted"><Cake size={12} /> День рождения{next.age !== null ? ` · ${next.age}` : ''}</span>
             </span>
-            <span className={cx('shrink-0 text-sm font-semibold', next.daysLeft === 0 ? 'text-pink-600 dark:text-pink-300' : 'text-amber-600 dark:text-amber-300')}>{birthdayText(next.daysLeft)}</span>
+            <span className={cx('shrink-0 text-sm font-semibold', next.daysLeft === 0 ? 'text-pink-600 dark:text-pink-300' : 'text-amber-700 dark:text-amber-300')}>{birthdayText(next.daysLeft)}</span>
           </li>
         ))}
         {data.due.map(({ person: p, since }) => (

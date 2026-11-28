@@ -19,7 +19,7 @@ export function useFinance(): FinanceData | undefined {
 export function Amount({ value, currency = 'RUB', type, className }: { value: number; currency?: Currency; type?: 'expense' | 'income' | 'transfer'; className?: string }) {
   const sign = type === 'expense' ? '−' : type === 'income' ? '+' : '';
   return (
-    <span className={cx('whitespace-nowrap font-semibold tabular-nums', type === 'income' && 'text-emerald-600 dark:text-emerald-300', className)}>
+    <span className={cx('whitespace-nowrap font-semibold tabular-nums', type === 'income' && 'text-emerald-700 dark:text-emerald-300', className)}>
       {sign}{fmtMoney(Math.abs(value), currency)}
     </span>
   );

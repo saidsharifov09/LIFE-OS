@@ -109,7 +109,7 @@ function HabitsTab() {
               <tr>
                 <th className="pb-2 text-left font-normal text-muted"><span className="sr-only">Привычка</span></th>
                 {week.map((d) => (
-                  <th key={d} className={cx('pb-2 text-center text-xs font-medium', d === t0 ? 'text-sky-600 dark:text-sky-300' : 'text-muted')}>
+                  <th key={d} className={cx('pb-2 text-center text-xs font-medium', d === t0 ? 'text-sky-700 dark:text-sky-300' : 'text-muted')}>
                     {WEEKDAYS_SHORT[weekday(d)]}<br /><span className="tabular-nums">{d.slice(8)}</span>
                   </th>
                 ))}
@@ -169,9 +169,9 @@ function HabitsTab() {
                 </button>
                 <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
                   <span className="text-muted">Неделя</span><span className="text-right tabular-nums"><b>{w.percent}%</b> ({w.done}/{w.planned})</span>
-                  <Bar value={w.percent} className="col-span-2 !h-1.5" />
+                  <Bar value={w.percent} className="col-span-2 !h-1.5" label={`${h.title}: неделя`} />
                   <span className="text-muted">Месяц</span><span className="text-right tabular-nums"><b>{mo.percent}%</b> ({mo.done}/{mo.planned})</span>
-                  <Bar value={mo.percent} className="col-span-2 !h-1.5" />
+                  <Bar value={mo.percent} className="col-span-2 !h-1.5" label={`${h.title}: месяц`} />
                   <span className="text-muted">Серия сейчас</span><span className="text-right tabular-nums"><b>{cur}</b> {plural(cur, DAYS_FORMS)}</span>
                   <span className="text-muted">Лучшая серия</span><span className="text-right tabular-nums"><b>{best}</b> {plural(best, DAYS_FORMS)}</span>
                 </div>
@@ -288,11 +288,11 @@ function GoalsTab() {
                     <span className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted">
                       <b className="text-fg tabular-nums">{p}%</b>
                       {g.deadline && !g.done && (
-                        <span className={cx(left! < 0 && 'text-red-600 dark:text-red-300', left! >= 0 && left! <= 7 && 'text-amber-600 dark:text-amber-300')}>
+                        <span className={cx(left! < 0 && 'text-red-700 dark:text-red-300', left! >= 0 && left! <= 7 && 'text-amber-700 dark:text-amber-300')}>
                           до {fmtDay(g.deadline)}{g.deadline.slice(0, 4) !== t0.slice(0, 4) ? ` ${g.deadline.slice(0, 4)}` : ''} · {left! < 0 ? `просрочено на ${-left!} ${plural(-left!, DAYS_FORMS)}` : left === 0 ? 'сегодня' : `осталось ${left} ${plural(left!, DAYS_FORMS)}`}
                         </span>
                       )}
-                      {g.done && <span className="text-emerald-600 dark:text-emerald-300">Достигнута 🏆</span>}
+                      {g.done && <span className="text-emerald-700 dark:text-emerald-300">Достигнута 🏆</span>}
                     </span>
                   </span>
                 </button>
@@ -317,7 +317,7 @@ function GoalsTab() {
                 {linked.length > 0 && <p className="mt-2 text-xs text-muted">Привычки: {linked.map((h) => `${h.emoji} ${h.title}`).join(', ')}</p>}
                 {!g.milestones.length && !g.done && (
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <Bar value={p} className="flex-1" />
+                    <Bar value={p} className="flex-1" label={`Цель «${g.title}»`} />
                     {[-10, 10].map((dlt) => (
                       <Button key={dlt} size="sm" variant="soft" onClick={async () => {
                         const v = Math.max(0, Math.min(100, g.progress + dlt));

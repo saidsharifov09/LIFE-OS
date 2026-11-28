@@ -78,7 +78,7 @@ export default function SettingsPage() {
             </div>
             <Switch checked={theme.lowBlur} onChange={theme.setLowBlur} label="Упростить размытие" />
           </div>
-          <Link to="/design" className="mt-4 inline-block text-sm text-sky-600 dark:text-sky-300">Открыть витрину дизайн-системы →</Link>
+          <Link to="/design" className="mt-4 inline-block text-sm text-sky-700 dark:text-sky-300">Открыть витрину дизайн-системы →</Link>
         </Card>
 
         <Card title="Напоминания" icon={<Bell size={18} />}>
@@ -89,7 +89,7 @@ export default function SettingsPage() {
           {perm !== 'unsupported' && perm !== 'granted' && (
             <Button className="mt-3" size="sm" variant="soft" onClick={async () => setPerm(await Notification.requestPermission())}>Разрешить системные уведомления</Button>
           )}
-          {perm === 'granted' && <p className="mt-3 text-sm text-emerald-600 dark:text-emerald-300">Системные уведомления разрешены ✓</p>}
+          {perm === 'granted' && <p className="mt-3 text-sm text-emerald-700 dark:text-emerald-300">Системные уведомления разрешены ✓</p>}
         </Card>
 
         <Card title="Демо-данные" icon={<Sparkles size={18} />}>

@@ -5,11 +5,11 @@ import { useSyncState, type SyncStatus } from '@/sync/auto';
 import { cx } from '@/lib/format';
 
 const VIEW: Record<Exclude<SyncStatus, 'off'>, { label: string; icon: typeof Cloud; cls: string }> = {
-  synced: { label: 'Синхронизировано', icon: CloudCheck, cls: 'text-emerald-600 dark:text-emerald-300' },
-  syncing: { label: 'Синхронизация…', icon: RefreshCw, cls: 'text-sky-600 dark:text-sky-300' },
+  synced: { label: 'Синхронизировано', icon: CloudCheck, cls: 'text-emerald-700 dark:text-emerald-300' },
+  syncing: { label: 'Синхронизация…', icon: RefreshCw, cls: 'text-sky-700 dark:text-sky-300' },
   offline: { label: 'Нет сети', icon: CloudOff, cls: 'text-muted' },
-  error: { label: 'Ошибка синхронизации', icon: CloudAlert, cls: 'text-red-600 dark:text-red-300' },
-  locked: { label: 'Нужен пароль', icon: KeyRound, cls: 'text-amber-600 dark:text-amber-300' },
+  error: { label: 'Ошибка синхронизации', icon: CloudAlert, cls: 'text-red-700 dark:text-red-300' },
+  locked: { label: 'Нужен пароль', icon: KeyRound, cls: 'text-amber-700 dark:text-amber-300' },
 };
 
 export function SyncBadge({ link, className }: { link?: boolean; className?: string }) {
