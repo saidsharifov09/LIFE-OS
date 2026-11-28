@@ -6,7 +6,8 @@ import { AnimatePresence } from 'framer-motion';
 import { ArrowRight, CalendarDays, CheckCircle2, Moon, Star, Sunrise } from 'lucide-react';
 import { db } from '@/db/db';
 import type { LogEntry, Task } from '@/db/types';
-import { addLogEntry, alive, getDay, getReview, markReview, moveTask, moveUnfinished, setTop, sortTasks } from '@/actions';
+import { MOODS as MOOD_SCALE } from '@/modules/health/moods';
+import { addLogEntry, alive, getDay, getReview, markReview, moveTask, moveUnfinished, setHealth, setTop, sortTasks } from '@/actions';
 import { addDays, fmtDayLong, fmtRelative, minToTime, timeToMin, today } from '@/lib/dates';
 import { cx, plural } from '@/lib/format';
 import { Button, Card, Input, PageHeader, Segmented, Textarea } from '@/ui/primitives';
@@ -140,9 +141,8 @@ function Morning() {
 }
 
 // ---------- Вечер ----------
-const MOODS: { v: NonNullable<LogEntry['mood']>; e: string; l: string }[] = [
-  { v: 1, e: '😣', l: 'Тяжело' }, { v: 2, e: '😕', l: 'Так себе' }, { v: 3, e: '😐', l: 'Нормально' }, { v: 4, e: '🙂', l: 'Хорошо' }, { v: 5, e: '🤩', l: 'Отлично' },
-];
+// Та же шкала, что в «Здоровье» — настроение из отчёта записывается и туда
+const MOODS = MOOD_SCALE as readonly { v: NonNullable<LogEntry['mood']>; e: string; l: string }[];
 
 function Evening() {
   const toast = useToast();
@@ -207,6 +207,7 @@ function Evening() {
 
       <Button size="lg" variant="primary" className="w-full" icon={<Moon size={20} />} onClick={async () => {
         if (text.trim() || mood) await addLogEntry({ text: text.trim() || 'Вечерний отчёт', kind: 'evening', mood });
+        if (mood) await setHealth(t0, { mood }); // настроение дня — и в «Здоровье»
         await markReview('evening', t0);
         toast.show('День завершён. Спокойной ночи 🌙');
         navigate('/');

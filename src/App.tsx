@@ -19,6 +19,8 @@ const FinancePage = lazy(() => import('./modules/finance/FinancePage'));
 const SettingsPage = lazy(() => import('./modules/settings/SettingsPage'));
 const DesignPage = lazy(() => import('./modules/design/DesignPage'));
 const TrashPage = lazy(() => import('./modules/backup/TrashPage'));
+const GoalsPage = lazy(() => import('./modules/goals/GoalsPage'));
+const HealthPage = lazy(() => import('./modules/health/HealthPage'));
 
 export default function App() {
   return (
@@ -39,8 +41,10 @@ export default function App() {
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/design" element={<DesignPage />} />
                   <Route path="/trash" element={<TrashPage />} />
+                  <Route path="/goals" element={<GoalsPage />} />
+                  <Route path="/health" element={<HealthPage />} />
                   <Route path="/more" element={<MorePage />} />
-                  {['/goals', '/health', '/notes', '/later', '/people', '/log', '/search'].map((p) => (
+                  {['/notes', '/later', '/people', '/log', '/search'].map((p) => (
                     <Route key={p} path={p} element={<Placeholder />} />
                   ))}
                   <Route path="*" element={<Navigate to="/" replace />} />

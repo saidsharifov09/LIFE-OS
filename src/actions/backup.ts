@@ -109,6 +109,7 @@ const KIND: Record<DataTable, string> = {
   tasks: 'Задача', events: 'Событие', inbox: 'Входящие', accounts: 'Счёт', transactions: 'Операция', notes: 'Заметка',
   noteSections: 'Раздел блокнота', later: 'Посмотреть позже', log: 'История', reviews: 'Обзор дня', budgets: 'Бюджет',
   recurring: 'Платёж', debts: 'Долг', savings: 'Копилка',
+  goals: 'Цель', habits: 'Привычка', habitChecks: 'Отметка привычки', health: 'Здоровье', workouts: 'Тренировка',
 };
 
 function titleOf(t: DataTable, r: Record<string, unknown>): string {
@@ -123,6 +124,9 @@ function titleOf(t: DataTable, r: Record<string, unknown>): string {
     case 'debts': return `${s('person')} · ${fmtMoney(Number(r.amount) || 0, (r.currency as never) ?? 'RUB')}`;
     case 'reviews': return `${r.kind === 'morning' ? 'Утренний обзор' : 'Вечерний отчёт'} · ${s('date')}`;
     case 'inbox': case 'log': return s('text');
+    case 'habitChecks': return `Отметка · ${s('date')}`;
+    case 'health': return `Здоровье · ${s('date')}`;
+    case 'workouts': return `${s('kind')} · ${Number(r.minutes) || 0} мин · ${s('date')}`;
     case 'accounts': case 'savings': case 'noteSections': return s('name');
     default: return s('title') || s('name') || s('text') || 'Без названия';
   }

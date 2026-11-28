@@ -2,6 +2,7 @@ import Dexie, { type Table } from 'dexie';
 import type {
   Task, CalendarEvent, InboxItem, Account, Transaction, Note, NoteSection,
   LaterItem, LogEntry, ReviewRecord, Setting, Budget, RecurringPayment, Debt, SavingsGoal,
+  Goal, Habit, HabitCheck, HealthDay, Workout,
 } from './types';
 
 /**
@@ -25,6 +26,11 @@ export class LifeDB extends Dexie {
   recurring!: Table<RecurringPayment, string>;
   debts!: Table<Debt, string>;
   savings!: Table<SavingsGoal, string>;
+  goals!: Table<Goal, string>;
+  habits!: Table<Habit, string>;
+  habitChecks!: Table<HabitCheck, string>;
+  health!: Table<HealthDay, string>;
+  workouts!: Table<Workout, string>;
 
   constructor() {
     super('lifeos');
@@ -50,17 +56,26 @@ export class LifeDB extends Dexie {
       debts: 'id, updatedAt, deletedAt',
       savings: 'id, updatedAt, deletedAt',
     });
+    // v3 — Этап 5: цели, привычки (отметки по дням), здоровье, тренировки.
+    this.version(3).stores({
+      goals: 'id, updatedAt, deletedAt',
+      habits: 'id, order, updatedAt, deletedAt',
+      habitChecks: 'id, habitId, date, updatedAt, deletedAt',
+      health: 'id, date, updatedAt, deletedAt',
+      workouts: 'id, date, updatedAt, deletedAt',
+    });
   }
 }
 
 export const db = new LifeDB();
 
 /** Текущая версия схемы — пишется в резервные копии */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /** Таблицы с пользовательскими данными (для экспорта, демо, синхронизации) */
 export const DATA_TABLES = [
   'tasks', 'events', 'inbox', 'accounts', 'transactions', 'notes',
   'noteSections', 'later', 'log', 'reviews', 'budgets', 'recurring', 'debts', 'savings',
+  'goals', 'habits', 'habitChecks', 'health', 'workouts',
 ] as const;
 export type DataTable = (typeof DATA_TABLES)[number];

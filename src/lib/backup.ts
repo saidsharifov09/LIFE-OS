@@ -103,7 +103,7 @@ export function validateBackup(o: unknown, currentSchema?: number): Backup {
 
 /**
  * Миграции данных копии между версиями схемы — те же шаги, что в db.ts upgrade().
- * v1 → v2: новые таблицы и необязательные поля, преобразование не нужно.
+ * v1 → v2, v2 → v3: только новые таблицы и необязательные поля, преобразование не нужно.
  * Новые шаги добавлять сюда: if (from < 3) { ... }
  */
 function migrateTables(tables: Record<string, BaseRecord[]>, _from: number) {
@@ -115,7 +115,7 @@ export function summarize(b: Backup): { label: string; count: number }[] {
   const names: Record<string, string> = {
     tasks: 'Задачи', events: 'События', inbox: 'Входящие', transactions: 'Операции', accounts: 'Счета',
     notes: 'Заметки', later: 'Посмотреть позже', log: 'История', budgets: 'Бюджеты', recurring: 'Платежи',
-    debts: 'Долги', savings: 'Копилки',
+    debts: 'Долги', savings: 'Копилки', goals: 'Цели', habits: 'Привычки', health: 'Здоровье', workouts: 'Тренировки',
   };
   return Object.entries(names)
     .map(([t, label]) => ({ label, count: (b.tables[t] ?? []).filter((r) => !r.deletedAt).length }))
