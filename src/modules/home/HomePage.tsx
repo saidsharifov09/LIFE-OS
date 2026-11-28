@@ -1,11 +1,11 @@
-// Главная «Мой день»: дашборд из виджетов. Порядок виджетов хранится в настройках (настройка — Этап 7).
+// Главная «Мой день»: дашборд из виджетов. Порядок и видимость — «Настройки → Главная» (src/lib/widgets.ts).
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence } from 'framer-motion';
 import {
   AlarmClock, ArrowRight, CalendarClock, CalendarDays, Inbox, ListTodo, Moon, Quote, Sparkles,
-  Star, Sunrise, Target, Wallet, Calculator,
+  Star, Sunrise, Target, Wallet, Calculator, Search, SlidersHorizontal,
 } from 'lucide-react';
 import { db } from '@/db/db';
 import type { Task } from '@/db/types';
@@ -25,9 +25,8 @@ import { BackupBanner } from '@/modules/backup/BackupBanner';
 import { HabitsWidget, HealthWidget } from './LifeWidgets';
 import { SyncBadge } from '@/modules/sync/SyncBadge';
 import { PeopleWidget } from '@/modules/people/PeopleWidget';
+import { visibleWidgets, type WidgetId } from '@/lib/widgets';
 
-export const DEFAULT_WIDGETS = ['review', 'progress', 'top', 'tasks', 'habits', 'health', 'schedule', 'next', 'money', 'people', 'inbox', 'quote'] as const;
-export type WidgetId = (typeof DEFAULT_WIDGETS)[number];
 
 function greeting() {
   const h = new Date().getHours();
@@ -49,12 +48,8 @@ export default function HomePage() {
   const now = useNow();
   // Перечитываем день при любом изменении задач/событий/операций
   const day = useLiveQuery(() => getDay(date), [date, now]);
-  const order = useLiveQuery(async () => {
-    const saved = (await db.settings.get('homeWidgets'))?.value as WidgetId[] | undefined;
-    if (!saved) return [...DEFAULT_WIDGETS];
-    // Новые виджеты (появились в обновлении) добавляем в конец сохранённого порядка
-    return [...saved, ...DEFAULT_WIDGETS.filter((w) => !saved.includes(w))];
-  }, []);
+  // Порядок и видимость — «Настройки → Главная» (новые виджеты из обновлений — в конец)
+  const order = useLiveQuery(async () => visibleWidgets((await db.settings.get('homeWidgets'))?.value, (await db.settings.get('homeHidden'))?.value), []);
   const [editing, setEditing] = useState<Task | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -80,7 +75,11 @@ export default function HomePage() {
       <header className="mb-5 pt-2">
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-medium text-muted">{fmtDayLong(date)}</p>
-          <SyncBadge link className="lg:hidden" />
+          <div className="flex items-center gap-2">
+            <SyncBadge link className="lg:hidden" />
+            <Link to="/search" aria-label="Поиск" className="focus-ring glass grid h-9 w-9 place-items-center rounded-full text-muted hover:text-fg"><Search size={17} /></Link>
+            <Link to="/settings#home" aria-label="Настроить главную" className="focus-ring glass grid h-9 w-9 place-items-center rounded-full text-muted hover:text-fg"><SlidersHorizontal size={17} /></Link>
+          </div>
         </div>
         <h1 className="text-[30px] font-bold leading-tight tracking-tight lg:text-4xl">
           {greeting()}<span className="grad-text">!</span>
@@ -89,6 +88,12 @@ export default function HomePage() {
       <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
         <BackupBanner />
         {order.filter((id) => id in widgets).map((id) => widgets[id])}
+        {order.length === 0 && (
+          <Card className="md:col-span-2 xl:col-span-3">
+            <Empty icon={<SlidersHorizontal size={24} />} title="Все виджеты скрыты" hint="Верните нужные в настройках главной."
+              action={<Link to="/settings#home"><Button variant="soft" size="sm">Настроить главную</Button></Link>} />
+          </Card>
+        )}
       </div>
       <TaskEditor open={!!editing || creating} task={editing} defaultDate={date} onClose={() => { setEditing(null); setCreating(false); }} />
     </>

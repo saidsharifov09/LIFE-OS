@@ -9,6 +9,7 @@ import { isSafeUrl, linkLabel } from '@/lib/links';
 import { cx } from '@/lib/format';
 import { Button, Card, Chip, Empty, Field, Input, Label, PageHeader, Segmented, Textarea } from '@/ui/primitives';
 import { Sheet, useToast } from '@/ui/overlay';
+import { useOpenParam } from '@/app/useOpenParam';
 
 export const LATER_KINDS: { id: LaterKind; name: string; icon: typeof Video; color: string }[] = [
   { id: 'video', name: 'Видео', icon: Video, color: '#f472b6' },
@@ -30,6 +31,11 @@ export default function LaterPage() {
   const [kind, setKind] = useState<LaterKind | null>(null);
   const [text, setText] = useState('');
   const [edit, setEdit] = useState<LaterItem | null>(null);
+  useOpenParam('open', (id) => {
+    if (!items) return false;
+    const it = items.find((x) => x.id === id);
+    if (it) { setTab(it.done ? 'done' : 'todo'); setKind(null); setEdit(it); }
+  });
 
   if (!items) return <div className="h-40" />;
   const todo = items.filter((i) => !i.done);

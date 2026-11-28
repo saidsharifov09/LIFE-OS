@@ -2,30 +2,22 @@
 import { useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Archive, Coins, Download, FileUp, Upload } from 'lucide-react';
-import { getSetting, importTransactions, setRates, setSetting, updateAccount } from '@/actions';
+import { getSetting, importTransactions, setSetting, updateAccount } from '@/actions';
 import { fromCSV, toCSV, type ImportedTx } from '@/lib/finance';
 import { today } from '@/lib/dates';
 import { shareOrDownload } from '@/lib/share';
 import { fmtMoney, plural } from '@/lib/format';
-import { Button, Card, Chip, Input, Label } from '@/ui/primitives';
+import { Button, Card, Chip } from '@/ui/primitives';
 import { useToast } from '@/ui/overlay';
-import { parseNum, type FinanceData } from './shared';
+import { type FinanceData } from './shared';
+import { RatesCard } from './RatesCard';
 
 export function FinanceSettings({ data }: { data: FinanceData }) {
   const toast = useToast();
-  const [usd, setUsd] = useState(String(data.rates.USD).replace('.', ','));
-  const [tjs, setTjs] = useState(String(data.rates.TJS).replace('.', ','));
   const defaultAcc = useLiveQuery(() => getSetting<string | null>('defaultAccount', null), [], null);
   const archived = data.allAccounts.filter((a) => a.archived);
   const fileRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<{ items: ImportedTx[]; skipped: number; name: string } | null>(null);
-
-  const saveRates = async () => {
-    const u = parseNum(usd), t = parseNum(tjs);
-    if (u <= 0 || t <= 0) { toast.show('Курс должен быть больше нуля', { tone: 'error' }); return; }
-    await setRates({ USD: u, TJS: t });
-    toast.show('Курсы сохранены');
-  };
 
   const exportCSV = async () => {
     const csv = toCSV(data.txs, data.allAccounts);
@@ -52,14 +44,7 @@ export function FinanceSettings({ data }: { data: FinanceData }) {
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <Card title="Курсы валют" icon={<Coins size={18} />}>
-        <p className="mb-3 text-sm text-muted">Основная валюта — рубль. Курсы задаются вручную; по ним считаются итоги, бюджеты и графики.</p>
-        <div className="grid grid-cols-2 gap-3">
-          <label><Label>1 $ = … ₽</Label><Input inputMode="decimal" value={usd} onChange={(e) => setUsd(e.target.value)} aria-label="Курс доллара" /></label>
-          <label><Label>1 смн = … ₽</Label><Input inputMode="decimal" value={tjs} onChange={(e) => setTjs(e.target.value)} aria-label="Курс сомони" /></label>
-        </div>
-        <Button className="mt-3" size="sm" variant="primary" onClick={saveRates}>Сохранить курсы</Button>
-      </Card>
+      <RatesCard />
 
       <Card title="Счёт по умолчанию" icon={<Coins size={18} />}>
         <p className="mb-3 text-sm text-muted">Сюда записываются расходы из быстрого захвата («кофе 250»).</p>

@@ -11,3 +11,4 @@ export * from './backup';
 export * from './life';
 export * from './notes';
 export * from './people';
+export * from './search';

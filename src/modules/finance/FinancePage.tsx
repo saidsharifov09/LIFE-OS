@@ -18,6 +18,7 @@ import { Sheet, useToast } from '@/ui/overlay';
 import { ACCOUNT_KINDS, AccountIcon, CategoryBadge } from '@/ui/CategoryIcon';
 import { Amount, CurrencyPicker, MoneyField, parseNum, useFinance, type FinanceData } from './shared';
 import { TxEditor } from './TxEditor';
+import { useOpenParam } from '@/app/useOpenParam';
 import { QuickMoney } from './QuickMoney';
 import { BudgetsTab, DebtsTab, RecurringTab, SavingsTab } from './Planning';
 import { FinanceSettings } from './FinanceSettings';
@@ -43,6 +44,12 @@ export default function FinancePage() {
   const data = useFinance();
   const [quick, setQuick] = useState(false);
   const [editor, setEditor] = useState<{ tx?: Transaction | null; type?: Transaction['type'] } | null>(null);
+  // Переход из поиска: ?tab=ops&open=<id> — открыть операцию
+  useOpenParam('open', (id) => {
+    if (!data) return false;
+    const tx = data.txs.find((t) => t.id === id);
+    if (tx) setEditor({ tx });
+  });
 
   return (
     <>

@@ -7,6 +7,7 @@ import type { Note } from '@/db/types';
 import { ensureNoteSections, listNotes, listSections, noteLinks } from '@/actions';
 import { cx, plural } from '@/lib/format';
 import { Button, Card, Chip, Empty, Input, PageHeader } from '@/ui/primitives';
+import { useOpenParam } from '@/app/useOpenParam';
 import { NoteEditor } from './NoteEditor';
 import { SectionsSheet } from './SectionsSheet';
 
@@ -25,6 +26,15 @@ export default function NotesPage() {
   useEffect(() => { ensureNoteSections(); }, []);
   const sections = useLiveQuery(() => listSections(), []);
   const notes = useLiveQuery(() => listNotes(), []);
+
+  useOpenParam('open', (id) => {
+    if (!notes) return false;
+    const n = notes.find((x) => x.id === id);
+    if (n) { setArchived(!!n.archived); setEdit(n); }
+  });
+
+  // Из «Настройки → Разделы»: /notes?manage=1 — сразу открыть управление разделами
+  useOpenParam('manage', () => { setManage(true); });
 
   const pick = (id: string) => { setSection(id); setTag(null); try { localStorage.setItem(LS_KEY, id); } catch { /* */ } };
   // Раздел удалили (или он с другого устройства исчез) — вернуться к «Все»

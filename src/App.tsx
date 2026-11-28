@@ -6,11 +6,11 @@ import { AppShell } from './app/AppShell';
 import { ToastProvider } from './ui/overlay';
 import { ConfettiHost } from './ui/feedback';
 import { CaptureProvider } from './modules/capture/CaptureSheet';
+import { PinLockProvider } from './modules/pin/PinLock';
 import HomePage from './modules/home/HomePage';
 import InboxPage from './modules/inbox/InboxPage';
 import TasksPage from './modules/tasks/TasksPage';
 import MorePage from './modules/more/MorePage';
-import Placeholder from './modules/placeholder/Placeholder';
 
 // Тяжёлые разделы грузятся по требованию
 const CalendarPage = lazy(() => import('./modules/calendar/CalendarPage'));
@@ -25,10 +25,12 @@ const NotesPage = lazy(() => import('./modules/notes/NotesPage'));
 const LaterPage = lazy(() => import('./modules/later/LaterPage'));
 const PeoplePage = lazy(() => import('./modules/people/PeoplePage'));
 const LogPage = lazy(() => import('./modules/log/LogPage'));
+const SearchPage = lazy(() => import('./modules/search/SearchPage'));
 
 export default function App() {
   return (
     <ThemeProvider>
+      <PinLockProvider>
       <HashRouter>
         <ToastProvider>
           <CaptureProvider>
@@ -52,7 +54,7 @@ export default function App() {
                   <Route path="/later" element={<LaterPage />} />
                   <Route path="/people" element={<PeoplePage />} />
                   <Route path="/log" element={<LogPage />} />
-                  <Route path="/search" element={<Placeholder />} />
+                  <Route path="/search" element={<SearchPage />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>
@@ -60,6 +62,7 @@ export default function App() {
           </CaptureProvider>
         </ToastProvider>
       </HashRouter>
+      </PinLockProvider>
       <ConfettiHost />
     </ThemeProvider>
   );
