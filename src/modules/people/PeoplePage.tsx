@@ -9,6 +9,7 @@ import { contactDue, daysSinceContact, fmtBirthday, fmtSince, nextBirthday } fro
 import { cx, plural } from '@/lib/format';
 import { Button, Card, Empty, Input, PageHeader } from '@/ui/primitives';
 import { useToast } from '@/ui/overlay';
+import { useOpenParam } from '@/app/useOpenParam';
 import { PersonSheet } from './PersonSheet';
 import { Avatar, birthdayText } from './shared';
 
@@ -18,6 +19,7 @@ export default function PeoplePage() {
   const people = useLiveQuery(() => listPeople(), []);
   const [open, setOpen] = useState<string | 'new' | null>(null);
   const [q, setQ] = useState('');
+  useOpenParam('open', (id) => { if (!people) return false; if (people.some((p) => p.id === id)) setOpen(id); });
   if (!people) return <div className="h-40" />;
 
   const bdays = people.map((p) => ({ p, b: nextBirthday(p, t0) })).filter((x) => x.b && x.b.daysLeft <= 30).sort((a, b) => a.b!.daysLeft - b.b!.daysLeft);

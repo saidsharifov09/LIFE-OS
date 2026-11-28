@@ -1,16 +1,27 @@
-// Настройки (базовые). Полный набор — Этап 7.
+// Настройки: облако, копии, главная, разделы, валюты, PIN, оформление, напоминания, демо, данные.
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Bell, ChevronRight, Database, Monitor, Moon, Palette, Sparkles, Sun, Trash2 } from 'lucide-react';
 import { db, DATA_TABLES } from '@/db/db';
 import { useTheme, type ThemeMode } from '@/app/theme';
-import { Button, Card, PageHeader, Segmented, Switch } from '@/ui/primitives';
+import { Button, Card, Chip, PageHeader, Segmented, Switch } from '@/ui/primitives';
 import { useToast } from '@/ui/overlay';
 import { clearDemo, hasDemo, seedDemo } from './demo';
 import { BackupCard } from '@/modules/backup/BackupCard';
 import { SyncCard } from '@/modules/sync/SyncCard';
 import { listTrash } from '@/actions';
+import { HomeWidgetsCard } from './HomeWidgetsCard';
+import { SectionsCard } from './SectionsCard';
+import { RatesCard } from '@/modules/finance/RatesCard';
+import { PinCard } from '@/modules/pin/PinCard';
+
+/** Быстрые переходы по длинной странице настроек; id — якоря (#home ведёт сюда с главной) */
+const JUMPS = [
+  { id: 'sync', label: 'Облако' }, { id: 'backup', label: 'Копии' }, { id: 'home', label: 'Главная' },
+  { id: 'sections', label: 'Разделы' }, { id: 'money', label: 'Валюты' }, { id: 'pin', label: 'PIN-код' },
+  { id: 'look', label: 'Оформление' }, { id: 'data', label: 'Данные' },
+];
 
 export default function SettingsPage() {
   const theme = useTheme();
@@ -21,18 +32,36 @@ export default function SettingsPage() {
   const { hash } = useLocation();
   // Переход с баннера «Пора сделать копию» — прокрутить к карточке
   useEffect(() => {
-    if (hash === '#backup' || hash === '#sync') setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    const id = hash.slice(1);
+    if (!JUMPS.some((j) => j.id === id)) return;
+    // Второй раз — когда карточки выше (облако, копии) догрузятся и сдвинут страницу
+    const go = (behavior: ScrollBehavior) => document.getElementById(id)?.scrollIntoView({ behavior, block: 'start' });
+    const t1 = setTimeout(() => go('smooth'), 80);
+    const t2 = setTimeout(() => go('auto'), 600);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [hash]);
   const [perm, setPerm] = useState(() => ('Notification' in window ? Notification.permission : 'unsupported'));
 
   return (
     <>
       <PageHeader title="Настройки" />
-      <div className="grid gap-4 lg:grid-cols-2">
+      <nav aria-label="Разделы настроек" className="-mx-4 mb-4 flex gap-1.5 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-wrap lg:px-0">
+        {JUMPS.map((j) => (
+          <Chip key={j.id} onClick={() => document.getElementById(j.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>{j.label}</Chip>
+        ))}
+      </nav>
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         <div id="sync" className="scroll-mt-4 lg:col-span-2"><SyncCard /></div>
         <div id="backup" className="scroll-mt-4 lg:col-span-2"><BackupCard /></div>
+        <div id="home" className="scroll-mt-4 lg:row-span-2"><HomeWidgetsCard /></div>
+        <div id="sections" className="scroll-mt-4"><SectionsCard /></div>
+        <div id="money" className="scroll-mt-4">
+          <RatesCard />
+          <Link to="/finance?tab=settings" className="mt-2 flex items-center justify-end gap-1 px-2 text-sm text-muted hover:text-fg">Счёт по умолчанию, CSV, архив счетов <ChevronRight size={14} /></Link>
+        </div>
+        <div id="pin" className="scroll-mt-4"><PinCard /></div>
 
-        <Card title="Оформление" icon={<Palette size={18} />}>
+        <Card id="look" className="scroll-mt-4" title="Оформление" icon={<Palette size={18} />}>
           <Segmented<ThemeMode>
             value={theme.mode}
             onChange={theme.setMode}
@@ -74,7 +103,7 @@ export default function SettingsPage() {
           </div>
         </Card>
 
-        <Card title="Данные" icon={<Database size={18} />}>
+        <Card id="data" className="scroll-mt-4" title="Данные" icon={<Database size={18} />}>
           <p className="text-sm text-muted">Всё хранится на этом устройстве (IndexedDB) и работает без интернета. Облако — по желанию, в карточке выше.</p>
           <Link to="/trash" className="focus-ring mt-3 flex items-center gap-3 rounded-2xl bg-[rgb(var(--line)/0.05)] px-3 py-2.5 hover:bg-[rgb(var(--line)/0.09)]">
             <Trash2 size={18} className="text-muted" />

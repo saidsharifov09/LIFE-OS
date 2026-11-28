@@ -1,15 +1,17 @@
 // Каркас: боковая панель на ноутбуке, нижняя панель + кнопка захвата на iPhone.
-import { type ReactNode } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useEffect, type ReactNode } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Plus, LayoutGrid } from 'lucide-react';
+import { Plus, LayoutGrid, Lock } from 'lucide-react';
 import { db } from '@/db/db';
 import { cx } from '@/lib/format';
 import { NAV, BOTTOM_TABS } from './nav';
+import { useVisibleNav } from './useNav';
 import { useCapture } from '@/modules/capture/CaptureSheet';
 import { useReminders } from '@/modules/calendar/reminders';
 import { SyncBadge } from '@/modules/sync/SyncBadge';
+import { usePinLock } from '@/modules/pin/PinLock';
 
 function useInboxCount() {
   return useLiveQuery(async () => (await db.inbox.toArray()).filter((i) => !i.deletedAt && !i.processed).length, [], 0)
@@ -20,7 +22,25 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { open } = useCapture();
   const inboxCount = useInboxCount();
   const location = useLocation();
+  const navigate = useNavigate();
+  const nav = useVisibleNav();
+  const pin = usePinLock();
   useReminders();
+
+  // Поиск с клавиатуры ноутбука: «/» (если курсор не в поле) или Ctrl+K / ⌘K — откуда угодно
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const inField = (e.target as HTMLElement).closest('input, textarea, [contenteditable]');
+      const ctrlK = (e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'л');
+      if (ctrlK || (!inField && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === '/' || e.key === '.'))) {
+        if (document.querySelector('[role="dialog"]')) return; // открыта шторка — не мешаем
+        e.preventDefault();
+        navigate('/search');
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [navigate]);
 
   return (
     <div className="min-h-full">
@@ -30,7 +50,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="glass fixed inset-y-3 left-3 z-30 hidden w-60 flex-col rounded-4xl p-3 lg:flex">
         <div className="flex items-center gap-2 px-3 pb-4 pt-2">
           <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-8 w-8" />
-          <span className="text-lg font-bold tracking-tight">Life OS</span>
+          <span className="flex-1 text-lg font-bold tracking-tight">Life OS</span>
+          {pin.enabled && (
+            <button onClick={pin.lock} aria-label="Заблокировать" title="Заблокировать (PIN)" className="focus-ring grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-[rgb(var(--line)/0.07)] hover:text-fg">
+              <Lock size={16} />
+            </button>
+          )}
         </div>
         <SyncBadge link className="mb-3 ml-2" />
         <button
@@ -40,7 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Plus size={18} strokeWidth={2.5} /> Быстрая запись <kbd className="ml-1 rounded bg-black/10 px-1.5 text-xs">N</kbd>
         </button>
         <nav className="no-scrollbar -mx-1 flex-1 overflow-y-auto px-1">
-          {NAV.filter((n) => n.sidebar).map((n) => (
+          {nav.filter((n) => n.sidebar).map((n) => (
             <SideLink key={n.path} to={n.path} icon={<n.icon size={18} />} label={n.label} badge={n.path === '/inbox' ? inboxCount : 0} />
           ))}
         </nav>

@@ -34,3 +34,8 @@ export const NAV: NavItem[] = [
 
 /** Нижняя панель на iPhone: 4 вкладки + кнопка захвата по центру */
 export const BOTTOM_TABS = ['/', '/tasks', '/calendar', '/more'];
+
+/** Эти разделы нельзя скрыть: основа приложения и нижняя панель iPhone */
+export const ALWAYS_VISIBLE = ['/', '/inbox', '/tasks', '/calendar', '/search', '/settings'];
+/** Разделы, которые можно убрать из меню в «Настройки → Разделы» */
+export const HIDEABLE = NAV.filter((n) => n.sidebar && !ALWAYS_VISIBLE.includes(n.path));

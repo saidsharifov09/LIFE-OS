@@ -5,6 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Columns3, List, Plus, Sparkles } from 'lucide-react';
 import { db } from '@/db/db';
 import type { DateStr, Task } from '@/db/types';
+import { useOpenParam } from '@/app/useOpenParam';
 import { addTask, alive, bucketOf, moveTask, sortTasks, type TaskBucket } from '@/actions';
 import { addDays, startOfWeek, today } from '@/lib/dates';
 import { parseCapture } from '@/lib/parse';
@@ -56,7 +57,14 @@ export default function TasksPage() {
   const [creating, setCreating] = useState(false);
   const [quick, setQuick] = useState('');
 
-  const all = useLiveQuery(async () => (await db.tasks.toArray()).filter(alive).sort(sortTasks), []) ?? [];
+  const loaded = useLiveQuery(async () => (await db.tasks.toArray()).filter(alive).sort(sortTasks), []);
+  const all = loaded ?? [];
+  // Переход из поиска: /tasks?open=<id> — показать группу задачи и открыть карточку
+  useOpenParam('open', (id) => {
+    if (!loaded) return false;
+    const t = loaded.find((x) => x.id === id);
+    if (t) { setCat(null); setPrio(false); setFilter(t.done ? 'done' : bucketOf(t)); setEditing(t); }
+  });
   const filtered = useMemo(() => all.filter((t) => (!cat || t.category === cat) && (!prio || t.priority >= 2)), [all, cat, prio]);
   const counts = useMemo(() => {
     const c: Record<string, number> = {};

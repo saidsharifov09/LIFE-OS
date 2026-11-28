@@ -1,5 +1,7 @@
 // «Цели и привычки»: привычки на сегодня, неделя отметок, статистика; цели с этапами и сроками.
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useOpenParam } from '@/app/useOpenParam';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { ArrowDown, ArrowUp, CalendarDays, Check as CheckIcon, Flame, Plus, Target, Trash2, Trophy, X } from 'lucide-react';
 import type { DateStr, Goal, Habit } from '@/db/types';
@@ -22,6 +24,10 @@ type Tab = 'habits' | 'goals';
 export default function GoalsPage() {
   const [tab, setTab] = useState<Tab>(() => (localStorage.getItem('lifeos.goals.tab') as Tab) || 'habits');
   const pick = (t: Tab) => { setTab(t); try { localStorage.setItem('lifeos.goals.tab', t); } catch { /* */ } };
+  // Переход из поиска: ?open=<цель> или ?habit=<привычка> — сначала нужная вкладка, карточку откроет вкладка
+  const [params] = useSearchParams();
+  const want: Tab | null = params.get('open') ? 'goals' : params.get('habit') ? 'habits' : null;
+  useEffect(() => { if (want && want !== tab) pick(want); });
   return (
     <>
       <PageHeader title="Цели и привычки" />
@@ -40,6 +46,11 @@ function HabitsTab() {
   // Отметки за 400 дней — для серий, лучшей серии и статистики месяца
   const checks = useLiveQuery(() => habitChecks(addDays(t0, -400), t0), [t0]) ?? [];
   const [edit, setEdit] = useState<Habit | 'new' | null>(null);
+  useOpenParam('habit', (id) => {
+    if (!habits) return false;
+    const h = habits.find((x) => x.id === id);
+    if (h) setEdit(h);
+  });
 
   const byHabit = useMemo(() => {
     const m = new Map<string, ReturnType<typeof checkMap>>();
@@ -244,6 +255,11 @@ function GoalsTab() {
   const goals = useLiveQuery(() => listGoals(), []);
   const habits = useLiveQuery(() => listHabits(), []) ?? [];
   const [edit, setEdit] = useState<Goal | 'new' | null>(null);
+  useOpenParam('open', (id) => {
+    if (!goals) return false;
+    const g = goals.find((x) => x.id === id);
+    if (g) setEdit(g);
+  });
   if (!goals) return <div className="h-40" />;
   const active = goals.filter((g) => !g.done);
   const done = goals.filter((g) => g.done);

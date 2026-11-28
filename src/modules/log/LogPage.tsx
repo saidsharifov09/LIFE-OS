@@ -6,11 +6,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { History, Send, Trash2 } from 'lucide-react';
 import type { LogEntry, LogKind, Person } from '@/db/types';
 import { addLogEntry, deleteLogEntry, listPeople, logRange, updateLogEntry } from '@/actions';
-import { addDays, fmtDayLong, fmtRelative, nowTime, today } from '@/lib/dates';
+import { addDays, diffDays, fmtDayLong, fmtRelative, nowTime, today } from '@/lib/dates';
 import { cx, plural } from '@/lib/format';
 import { Button, Card, Chip, Empty, Field, Input, Label, PageHeader, Textarea } from '@/ui/primitives';
 import { Sheet, useToast } from '@/ui/overlay';
 import { Linkify } from '@/ui/Linkify';
+import { useOpenParam } from '@/app/useOpenParam';
 import { MOODS } from '@/modules/health/moods';
 
 export const LOG_KINDS: { id: LogKind; emoji: string; name: string; hint: string }[] = [
@@ -40,6 +41,15 @@ export default function LogPage() {
   const older = useLiveQuery(async () => (await logRange('0000-01-01', addDays(from, -1))).length, [from]) ?? 0;
   const people = useLiveQuery(() => listPeople(), []) ?? [];
   const byId = useMemo(() => new Map(people.map((p) => [p.id, p])), [people]);
+
+  // Переход из поиска: ?date=…&open=<id> — подгрузить ленту до нужного дня и открыть запись
+  useOpenParam('open', (id, params) => {
+    const d = params.get('date');
+    if (d && d < from) { setDays(diffDays(d, t0) + 1); return false; }
+    if (!entries) return false;
+    const e = entries.find((x) => x.id === id);
+    if (e) { setFilter(null); setEdit(e); setTimeout(() => document.getElementById(`log-${d}`)?.scrollIntoView({ block: 'start' }), 50); }
+  }, ['date']);
 
   const groups = useMemo(() => {
     const m = new Map<string, LogEntry[]>();
@@ -92,7 +102,7 @@ export default function LogPage() {
       ) : (
         <ol className="relative space-y-5 lg:max-w-3xl">
           {groups.map(([d, list]) => (
-            <li key={d}>
+            <li key={d} id={`log-${d}`} className="scroll-mt-4">
               <h2 className="mb-2 flex items-baseline gap-2 font-semibold">
                 {fmtRelative(d).includes(',') ? fmtDayLong(d) : <>{fmtRelative(d)}<span className="text-sm font-normal text-muted">{fmtDayLong(d)}</span></>}
                 <span className="ml-auto text-xs font-normal text-muted">{list.length} {plural(list.length, ['запись', 'записи', 'записей'])}</span>

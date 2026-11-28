@@ -170,7 +170,8 @@ export function Switch({ checked, onChange, label }: { checked: boolean; onChang
       onClick={() => onChange(!checked)}
       className={cx('focus-ring relative h-7 w-12 shrink-0 rounded-full transition-colors', checked ? 'grad-accent' : 'bg-[rgb(var(--line)/0.18)]')}
     >
-      <motion.span layout transition={{ type: 'spring', stiffness: 500, damping: 32 }} className={cx('absolute top-0.5 h-6 w-6 rounded-full bg-white shadow', checked ? 'right-0.5' : 'left-0.5')} />
+      {/* Сдвиг через x, а не layout: layout-анимация «отрывала» кружок при перестановке строк списка */}
+      <motion.span initial={false} animate={{ x: checked ? 20 : 0 }} transition={{ type: 'spring', stiffness: 500, damping: 32 }} className="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow" />
     </button>
   );
 }

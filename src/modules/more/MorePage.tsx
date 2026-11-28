@@ -1,13 +1,13 @@
 // «Ещё» — меню всех разделов на iPhone
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { NAV } from '@/app/nav';
+import { useVisibleNav } from '@/app/useNav';
 import { db } from '@/db/db';
 import { PageHeader } from '@/ui/primitives';
 
 export default function MorePage() {
   const inbox = useLiveQuery(async () => (await db.inbox.toArray()).filter((i) => !i.deletedAt && !i.processed).length, [], 0);
-  const items = NAV.filter((n) => !['/', '/tasks', '/calendar'].includes(n.path));
+  const items = useVisibleNav().filter((n) => !['/', '/tasks', '/calendar'].includes(n.path));
   return (
     <>
       <PageHeader title="Разделы" />
@@ -20,6 +20,7 @@ export default function MorePage() {
           </Link>
         ))}
       </div>
+      <Link to="/settings#sections" className="mt-5 block text-center text-sm text-muted hover:text-fg">Убрать лишние разделы из меню →</Link>
     </>
   );
 }

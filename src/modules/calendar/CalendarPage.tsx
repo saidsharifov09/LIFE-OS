@@ -15,6 +15,7 @@ import { Button, Card, Empty, PageHeader, Segmented } from '@/ui/primitives';
 import { TaskItem } from '@/modules/tasks/TaskItem';
 import { TaskEditor } from '@/modules/tasks/TaskEditor';
 import { EventEditor } from './EventEditor';
+import { useOpenParam } from '@/app/useOpenParam';
 import { TimeGrid } from './TimeGrid';
 
 type View = 'day' | 'week' | 'month';
@@ -46,6 +47,15 @@ export default function CalendarPage() {
 
   const occ = useLiveQuery(() => eventsInRange(range[0], range[1]), [range[0], range[1]]) ?? [];
   const tasks = useLiveQuery(async () => (await db.tasks.toArray()).filter((t) => alive(t) && t.date && t.date >= range[0] && t.date <= range[1]).sort(sortTasks), [range[0], range[1]]) ?? [];
+
+  // Переход из поиска: ?date=YYYY-MM-DD&open=<событие> — показать день и открыть событие
+  useOpenParam('date', (d, params) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return;
+    setCursor(d);
+    setView('day');
+    const id = params.get('open');
+    if (id) eventsInRange(d, d).then((list) => { const o = list.find((x) => x.event.id === id); if (o) setOpenOcc(o); });
+  }, ['open']);
 
   const setViewSaved = (v: View) => { setView(v); try { localStorage.setItem('lifeos.calView', v); } catch { /* ignore */ } };
   const step = (dir: number) => setCursor((c) => (view === 'day' ? addDays(c, dir) : view === 'week' ? addDays(c, 7 * dir) : addMonths(c, dir)));
