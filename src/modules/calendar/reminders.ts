@@ -1,5 +1,5 @@
-// Напоминания внутри приложения, пока оно открыто (честно: без сервера push при закрытом приложении невозможен,
-// см. docs/NOTIFICATIONS.md). Для надёжных напоминаний — кнопка «Добавить в Календарь iPhone» (.ics).
+// Напоминания внутри приложения, пока оно открыто. При закрытом приложении — push через Supabase (Настройки → Уведомления,
+// src/modules/notify/push.ts, docs/NOTIFICATIONS.md). Для надёжных напоминаний — кнопка «Добавить в Календарь iPhone» (.ics).
 import { useEffect } from 'react';
 import { db } from '@/db/db';
 import { alive, expandEvents } from '@/actions';
@@ -7,6 +7,7 @@ import { nowTime, timeToMin, today } from '@/lib/dates';
 import { useToast } from '@/ui/overlay';
 
 const FIRED_KEY = 'lifeos.firedReminders';
+const pushOn = () => { try { return !!JSON.parse(localStorage.getItem('lifeos.push') ?? '{}').enabled; } catch { return false; } };
 
 function loadFired(): Record<string, number> {
   try { return JSON.parse(localStorage.getItem(FIRED_KEY) ?? '{}'); } catch { return {}; }
@@ -50,7 +51,8 @@ export function useReminders() {
         if (stopped || fired[r.key]) continue;
         fired[r.key] = Date.now();
         toast.show(`🔔 ${r.text}`);
-        if ('Notification' in window && Notification.permission === 'granted') {
+        // Включены push-уведомления — системное пришлёт сервер, здесь только тост (без дубля)
+        if ('Notification' in window && Notification.permission === 'granted' && !pushOn()) {
           try { new Notification('Life OS', { body: r.text, icon: `${import.meta.env.BASE_URL}pwa-192.png` }); } catch { /* iOS без PWA */ }
         }
       }

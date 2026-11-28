@@ -4,7 +4,8 @@
 // и недоступно для нажатий и экранного диктора (inert).
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { Lock } from 'lucide-react';
+import { Lock, ScanFace } from 'lucide-react';
+import { biometryName, faceIdEnabled, unlockWithFaceId } from '@/lib/faceid';
 import { getFails, getPinConfig, hasPin, verifyPin } from '@/lib/pin';
 import { plural } from '@/lib/format';
 import { Button } from '@/ui/primitives';
@@ -86,6 +87,22 @@ function LockScreen({ onUnlock }: { onUnlock: () => void }) {
     return () => { document.body.style.overflow = prev; };
   }, []);
 
+  // Face ID: пробуем сразу при показе экрана (iPhone может попросить нажать кнопку — она ниже)
+  const bio = faceIdEnabled();
+  const [bioBusy, setBioBusy] = useState(false);
+  const tryBio = useCallback(async () => {
+    if (bioBusy) return;
+    setBioBusy(true);
+    const ok = await unlockWithFaceId();
+    setBioBusy(false);
+    if (ok) onUnlock();
+  }, [bioBusy, onUnlock]);
+  useEffect(() => {
+    if (!bio || document.visibilityState !== 'visible') return;
+    const t = setTimeout(() => { void tryBio(); }, 250);
+    return () => clearTimeout(t);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // PIN выключили на другой вкладке — блокировать нечего
   useEffect(() => { if (!cfg) onUnlock(); }, [cfg, onUnlock]);
   if (!cfg) return null;
@@ -109,7 +126,14 @@ function LockScreen({ onUnlock }: { onUnlock: () => void }) {
             if (r.waitMs > 0) { setWait(r.waitMs); return 'Неверный PIN'; }
             return r.left <= 2 ? `Неверный PIN. Ещё ${r.left} ${plural(r.left, ['попытка', 'попытки', 'попыток'])} до паузы` : 'Неверный PIN';
           }}
-          footer={<button className="text-sm text-muted hover:text-fg" onClick={() => setForgot(true)}>Забыли PIN?</button>}
+          footer={
+            <div className="flex flex-col items-center gap-3">
+              {bio && (
+                <Button variant="soft" icon={<ScanFace size={18} />} disabled={bioBusy} onClick={() => void tryBio()}>Войти по {biometryName()}</Button>
+              )}
+              <button className="text-sm text-muted hover:text-fg" onClick={() => setForgot(true)}>Забыли PIN?</button>
+            </div>
+          }
         />
         )}
       </div>

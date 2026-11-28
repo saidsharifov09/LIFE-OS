@@ -11,6 +11,7 @@ import { useVisibleNav } from './useNav';
 import { useCapture } from '@/modules/capture/CaptureSheet';
 import { useAssistant } from '@/modules/assistant/AssistantSheet';
 import { useReminders } from '@/modules/calendar/reminders';
+import { usePushAutoSync } from '@/modules/notify/push';
 import { SyncBadge } from '@/modules/sync/SyncBadge';
 import { usePinLock } from '@/modules/pin/PinLock';
 
@@ -28,6 +29,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const nav = useVisibleNav();
   const pin = usePinLock();
   useReminders();
+  usePushAutoSync();
 
   // Поиск с клавиатуры ноутбука: «/» (если курсор не в поле) или Ctrl+K / ⌘K — откуда угодно
   useEffect(() => {

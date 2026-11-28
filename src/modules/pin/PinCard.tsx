@@ -1,8 +1,9 @@
 // Настройки → PIN-код: включить, сменить, выключить, когда блокировать.
-import { useState } from 'react';
-import { KeyRound, Lock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { KeyRound, Lock, ScanFace } from 'lucide-react';
+import { biometryName, disableFaceId, enableFaceId, faceIdAvailable, faceIdEnabled } from '@/lib/faceid';
 import { clearPin, getPinConfig, LOCK_AFTER_OPTIONS, setLockAfter, setPin, verifyPin } from '@/lib/pin';
-import { Button, Card, Label, Segmented } from '@/ui/primitives';
+import { Button, Card, Label, Segmented, Switch } from '@/ui/primitives';
 import { Sheet, useToast } from '@/ui/overlay';
 import { PinPad } from './PinPad';
 import { usePinLock } from './PinLock';
@@ -14,7 +15,22 @@ export function PinCard() {
   const pinLock = usePinLock();
   const [cfg, setCfg] = useState(getPinConfig);
   const [flow, setFlow] = useState<Flow>(null);
-  const reload = () => { setCfg(getPinConfig()); pinLock.refresh(); };
+  const [bioAvail, setBioAvail] = useState(false);
+  const [bio, setBio] = useState(faceIdEnabled);
+  useEffect(() => { void faceIdAvailable().then(setBioAvail); }, []);
+  const reload = () => { setCfg(getPinConfig()); setBio(faceIdEnabled()); pinLock.refresh(); };
+  const bioName = biometryName();
+  const toggleBio = async (on: boolean) => {
+    if (!on) { disableFaceId(); setBio(false); toast.show(`${bioName} выключен — вход по PIN`); return; }
+    try {
+      await enableFaceId();
+      setBio(true);
+      toast.show(`Вход по ${bioName} включён ✓`);
+    } catch (e) {
+      const name = (e as Error).name;
+      toast.show(name === 'NotAllowedError' ? 'Отменено' : `Не получилось включить ${bioName}: ${(e as Error).message}`, { tone: 'error' });
+    }
+  };
   const close = () => setFlow(null);
 
   return (
@@ -37,6 +53,16 @@ export function PinCard() {
               options={LOCK_AFTER_OPTIONS.map((m) => ({ value: String(m), label: m === 0 ? 'Сразу' : `${m} мин` }))}
             />
           </div>
+          {bioAvail && (
+            <div className="mt-3 flex items-center gap-3 rounded-2xl bg-[rgb(var(--line)/0.05)] px-3 py-2.5">
+              <ScanFace size={20} className="shrink-0 text-accent-teal" />
+              <div className="flex-1">
+                <p className="font-medium">Входить по {bioName}</p>
+                <p className="text-sm text-muted">Не получилось или отменили — вводите PIN, как обычно.</p>
+              </div>
+              <Switch checked={bio} onChange={toggleBio} label={`Входить по ${bioName}`} />
+            </div>
+          )}
           <div className="mt-3 flex flex-wrap gap-2">
             <Button size="sm" variant="soft" icon={<Lock size={15} />} onClick={pinLock.lock}>Заблокировать сейчас</Button>
             <Button size="sm" variant="soft" onClick={() => setFlow({ step: 'old', then: 'change' })}>Сменить PIN</Button>
