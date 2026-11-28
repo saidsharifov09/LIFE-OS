@@ -163,6 +163,15 @@ export interface SavingsGoal extends BaseRecord {
   closed?: boolean;
 }
 
+/** Изображение заметки: сжатый JPEG в data URL (до 1280 px по длинной стороне) */
+export interface NoteImage {
+  id: ID;
+  /** data:image/jpeg;base64,… */
+  data: string;
+  w: number;
+  h: number;
+}
+
 export interface Note extends BaseRecord {
   title: string;
   body: string;
@@ -170,27 +179,67 @@ export interface Note extends BaseRecord {
   tags: string[];
   pinned: boolean;
   archived: boolean;
+  /** Изображения (v4). Ссылки берутся из текста заметки — отдельного поля нет */
+  images?: NoteImage[];
 }
 
 export interface NoteSection extends BaseRecord {
   name: string;
   order: number;
+  /** Эмодзи раздела */
   icon?: string;
 }
+
+export type LaterKind = 'link' | 'video' | 'movie' | 'series' | 'article' | 'book' | 'other';
 
 export interface LaterItem extends BaseRecord {
   title: string;
   url?: string;
-  kind: 'link' | 'video' | 'movie' | 'article' | 'book' | 'other';
+  kind: LaterKind;
   done: boolean;
+  /** Когда отмечено «посмотрел» (v4) */
+  doneAt?: number | null;
+  note?: string;
 }
+
+export type LogKind = 'note' | 'place' | 'activity' | 'people' | 'learned' | 'decision' | 'evening';
 
 export interface LogEntry extends BaseRecord {
   date: DateStr;
   time?: TimeStr | null;
   text: string;
-  kind: 'note' | 'place' | 'activity' | 'people' | 'learned' | 'decision' | 'evening';
+  kind: LogKind;
   mood?: 1 | 2 | 3 | 4 | 5 | null;
+  /** С кем (люди из раздела «Люди», v4) — обновляет «последний контакт» */
+  personIds?: ID[];
+}
+
+/** «Что обсудить или рассказать» */
+export interface PersonTopic {
+  id: ID;
+  text: string;
+  done: boolean;
+}
+
+/** Близкий человек (v4) */
+export interface Person extends BaseRecord {
+  name: string;
+  /** Кто это: семья, друг, работа… (свободный текст) */
+  relation?: string;
+  emoji?: string;
+  color: string;
+  /** День рождения «MM-DD» (год может быть неизвестен) */
+  birthday?: string | null;
+  birthYear?: number | null;
+  phone?: string;
+  notes?: string;
+  topics: PersonTopic[];
+  /** Дата последнего контакта */
+  lastContact?: DateStr | null;
+  /** Напомнить, если не общались столько дней (0/пусто — не напоминать) */
+  contactEvery?: number | null;
+  /** Избранные — выше в списке */
+  favorite?: boolean;
 }
 
 /** Отметка о прохождении утреннего обзора / вечернего отчёта */

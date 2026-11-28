@@ -110,6 +110,7 @@ const KIND: Record<DataTable, string> = {
   noteSections: 'Раздел блокнота', later: 'Посмотреть позже', log: 'История', reviews: 'Обзор дня', budgets: 'Бюджет',
   recurring: 'Платёж', debts: 'Долг', savings: 'Копилка',
   goals: 'Цель', habits: 'Привычка', habitChecks: 'Отметка привычки', health: 'Здоровье', workouts: 'Тренировка',
+  people: 'Человек',
 };
 
 function titleOf(t: DataTable, r: Record<string, unknown>): string {

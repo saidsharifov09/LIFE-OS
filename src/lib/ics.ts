@@ -77,6 +77,8 @@ export function rrule(r: Recurrence, start: DateStr): string {
   }
   // Приложение переносит «31-е» на последний день короткого месяца — в календаре так же
   if (r.freq === 'monthly' && Number(start.slice(8)) === 31) parts.push('BYMONTHDAY=-1');
+  // 29 февраля: в невисокосный год — последний день февраля (как в приложении)
+  if (r.freq === 'yearly' && start.slice(5) === '02-29') parts.push('BYMONTH=2', 'BYMONTHDAY=-1');
   if (r.until) parts.push(`UNTIL=${d8(r.until)}T235959`);
   return parts.join(';');
 }
@@ -132,7 +134,7 @@ export const ALLDAY_ALARMS: AlarmOption[] = [
   { value: 9 * 60 - 7 * 1440, label: 'За неделю' },
 ];
 
-/** День рождения: ежегодное событие на весь день (для раздела «Люди», Этап 6) */
+/** День рождения: ежегодное событие на весь день (раздел «Люди») */
 export function birthdayItem(p: { id: string; name: string; date: DateStr }, alarms = [9 * 60, 9 * 60 - 1440]): IcsItem {
   return {
     uid: `bday-${p.id}`, title: `🎂 День рождения: ${p.name}`, date: p.date, start: null,

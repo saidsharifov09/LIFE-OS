@@ -8,7 +8,7 @@ import { insert, patch, runAction, softDelete } from './core';
 import { addTask } from './tasks';
 import { addEvent } from './events';
 import { addExpense, addIncome } from './money';
-import { addLater, addNote } from './misc';
+import { addLater, addNote } from './notes';
 
 /** Записать мысль во «Входящие» (3–5 секунд: написал → Enter) */
 export function capture(text: string, demo?: boolean): Promise<InboxItem> {

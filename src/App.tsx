@@ -21,6 +21,10 @@ const DesignPage = lazy(() => import('./modules/design/DesignPage'));
 const TrashPage = lazy(() => import('./modules/backup/TrashPage'));
 const GoalsPage = lazy(() => import('./modules/goals/GoalsPage'));
 const HealthPage = lazy(() => import('./modules/health/HealthPage'));
+const NotesPage = lazy(() => import('./modules/notes/NotesPage'));
+const LaterPage = lazy(() => import('./modules/later/LaterPage'));
+const PeoplePage = lazy(() => import('./modules/people/PeoplePage'));
+const LogPage = lazy(() => import('./modules/log/LogPage'));
 
 export default function App() {
   return (
@@ -44,9 +48,11 @@ export default function App() {
                   <Route path="/goals" element={<GoalsPage />} />
                   <Route path="/health" element={<HealthPage />} />
                   <Route path="/more" element={<MorePage />} />
-                  {['/notes', '/later', '/people', '/log', '/search'].map((p) => (
-                    <Route key={p} path={p} element={<Placeholder />} />
-                  ))}
+                  <Route path="/notes" element={<NotesPage />} />
+                  <Route path="/later" element={<LaterPage />} />
+                  <Route path="/people" element={<PeoplePage />} />
+                  <Route path="/log" element={<LogPage />} />
+                  <Route path="/search" element={<Placeholder />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>

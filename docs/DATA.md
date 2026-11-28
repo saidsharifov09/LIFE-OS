@@ -33,9 +33,11 @@
 | `recurring` | регулярные платежи/подписки/доходы: сумма, повтор, `startDate`, `nextDate`, `active` (v2) | nextDate |
 | `debts` | долги: `direction` (they_owe / i_owe), сумма, `paid`, срок, `closed` (v2) | — |
 | `savings` | копилки: цель, `saved`, срок, цвет (v2) | — |
-| `notes`, `noteSections` | блокнот (Этап 6; заметки из входящих уже сохраняются) | sectionId, order |
-| `later` | «Посмотреть позже» | — |
-| `log` | история (Life Log), в т.ч. записи вечернего отчёта с настроением | date, kind |
+| `notes` | заметки: заголовок, текст, `sectionId`, `tags` (без «#», строчными), `pinned`, `archived`, `images` (сжатые JPEG data URL, до 6 шт., v4). Ссылки не хранятся отдельно — берутся из текста | sectionId |
+| `noteSections` | разделы блокнота: имя, эмодзи `icon`, `order`. Стартовые — с **id `sec_default_N`** (одни и те же на всех устройствах) | order |
+| `later` | «Посмотреть позже»: `kind` (video/movie/series/article/book/link/other), `url`, `done`, `doneAt`, `note` (v4) | — |
+| `log` | история (Life Log): `kind` (activity/place/people/learned/decision/note/evening), дата, время, `mood`, `personIds` (с кем, v4) | date, kind |
+| `people` | люди: `relation`, цвет, `birthday` (`MM-DD`) + необязательный `birthYear`, `phone`, `notes`, `topics` («что обсудить»), `lastContact`, `contactEvery` (дней), `favorite` (v4) | — |
 | `reviews` | отметки об утреннем обзоре/вечернем отчёте | [date+kind] |
 | `goals` | цели: `why` (зачем), срок, цвет, эмодзи, `milestones` (этапы), ручной `progress`, `done` (v3) | — |
 | `habits` | привычки: эмодзи, цвет, `days` (дни недели, пусто — каждый день), `target` (раз в день), `goalId`, `order` (v3) | order |
@@ -58,6 +60,13 @@
 `Recurrence = { freq: 'daily'|'weekly'|'monthly'|'yearly', interval, days?, until? }`, дни недели 0 = понедельник.
 - Задачи: при выполнении повторяющейся задачи создаётся новая копия на следующую дату, у выполненной повтор снимается.
 - События: хранится одна запись, вхождения вычисляются на лету (`expandEvents`). Перенос серии сдвигает дату начала.
+
+### Люди и история
+
+- День рождения хранится без года (`MM-DD`), год — отдельно и по желанию. 29 февраля в невисокосный год считается 28-го
+  (в .ics — `BYMONTH=2;BYMONTHDAY=-1`). Расчёты — `src/lib/people.ts` (с тестами).
+- Запись истории с людьми (`personIds`) сдвигает их `lastContact` вперёд (но не назад), отменяется вместе с записью.
+- Удаление раздела блокнота переносит его заметки в «Разное» (или в первый оставшийся раздел); последний раздел удалить нельзя.
 
 ## Корзина
 
@@ -102,6 +111,7 @@
 | 1 | 0–2 | стартовая схема |
 | 2 | 3 | `budgets`, `recurring`, `debts`, `savings`; новые необязательные поля `transactions` (без миграции данных) |
 | 3 | 5 | `goals`, `habits`, `habitChecks`, `health`, `workouts` (без миграции данных) |
+| 4 | 6 | `people`; необязательные поля `notes.images`, `later.doneAt/note`, `log.personIds` (без миграции данных) |
 
 Правила:
 1. **Никогда не менять** существующие `this.version(N)` — только добавлять `this.version(N+1).stores({...}).upgrade(tx => ...)`.

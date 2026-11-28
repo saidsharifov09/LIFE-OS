@@ -9,3 +9,5 @@ export * from './misc';
 export * from './day';
 export * from './backup';
 export * from './life';
+export * from './notes';
+export * from './people';
