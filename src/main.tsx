@@ -16,8 +16,25 @@ if (/access_token=/.test(location.hash)) {
 }
 import './index.css';
 
-// Сервис-воркер: офлайн-работа и автообновление приложения
-registerSW({ immediate: true });
+// Сервис-воркер: офлайн-работа и автообновление приложения.
+// На iPhone приложение с экрана «Домой» обычно не перезагружается, а «просыпается» из фона —
+// поэтому проверяем обновление при каждом возвращении в приложение и раз в час.
+// Нашлась новая версия → autoUpdate сам перезагрузит страницу (данные в IndexedDB не трогаются).
+registerSW({
+  immediate: true,
+  onRegisteredSW(_url, reg) {
+    if (!reg) return;
+    let last = 0;
+    const check = () => {
+      if (!navigator.onLine || Date.now() - last < 30_000) return;
+      last = Date.now();
+      reg.update().catch(() => {});
+    };
+    document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && check());
+    window.addEventListener('focus', check);
+    setInterval(check, 60 * 60 * 1000);
+  },
+});
 
 // Просим браузер не удалять локальную базу при нехватке места
 navigator.storage?.persist?.().catch(() => {});
