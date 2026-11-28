@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '@/db/db';
+import { db, SCHEMA_VERSION } from '@/db/db';
 import {
   addTask, addExpense, deleteTask, listTasks, undoLast, exportAll, importBackup, listTrash, restoreFromTrash,
   purgeItem, emptyTrash, autoPurgeTrash, backupDue, markBackupDone, snoozeBackup, setSetting, updateTask,
@@ -18,7 +18,7 @@ describe('резервная копия', () => {
     await addExpense({ amount: 300, note: 'Кофе', category: 'cafe' });
     await setSetting('rates', { USD: 90, TJS: 8 });
     const copy = await exportAll();
-    expect(copy.schemaVersion).toBe(2);
+    expect(copy.schemaVersion).toBe(SCHEMA_VERSION);
 
     await addTask({ title: 'Лишняя' });
     const r = await importBackup(copy, 'replace');

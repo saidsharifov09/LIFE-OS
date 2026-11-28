@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence } from 'framer-motion';
 import {
-  AlarmClock, ArrowRight, CalendarClock, CalendarDays, Droplets, Inbox, ListTodo, Moon, Quote, Sparkles,
+  AlarmClock, ArrowRight, CalendarClock, CalendarDays, Inbox, ListTodo, Moon, Quote, Sparkles,
   Star, Sunrise, Target, Wallet, Calculator,
 } from 'lucide-react';
 import { db } from '@/db/db';
@@ -22,9 +22,10 @@ import { TaskEditor } from '@/modules/tasks/TaskEditor';
 import { useCapture } from '@/modules/capture/CaptureSheet';
 import { quoteOfDay } from './quotes';
 import { BackupBanner } from '@/modules/backup/BackupBanner';
+import { HabitsWidget, HealthWidget } from './LifeWidgets';
 import { SyncBadge } from '@/modules/sync/SyncBadge';
 
-export const DEFAULT_WIDGETS = ['review', 'progress', 'top', 'tasks', 'schedule', 'next', 'money', 'inbox', 'habits', 'quote'] as const;
+export const DEFAULT_WIDGETS = ['review', 'progress', 'top', 'tasks', 'habits', 'health', 'schedule', 'next', 'money', 'inbox', 'quote'] as const;
 export type WidgetId = (typeof DEFAULT_WIDGETS)[number];
 
 function greeting() {
@@ -47,7 +48,12 @@ export default function HomePage() {
   const now = useNow();
   // Перечитываем день при любом изменении задач/событий/операций
   const day = useLiveQuery(() => getDay(date), [date, now]);
-  const order = useLiveQuery(async () => ((await db.settings.get('homeWidgets'))?.value as WidgetId[]) ?? [...DEFAULT_WIDGETS], []);
+  const order = useLiveQuery(async () => {
+    const saved = (await db.settings.get('homeWidgets'))?.value as WidgetId[] | undefined;
+    if (!saved) return [...DEFAULT_WIDGETS];
+    // Новые виджеты (появились в обновлении) добавляем в конец сохранённого порядка
+    return [...saved, ...DEFAULT_WIDGETS.filter((w) => !saved.includes(w))];
+  }, []);
   const [editing, setEditing] = useState<Task | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -63,6 +69,7 @@ export default function HomePage() {
     money: <MoneyWidget key="money" day={day} />,
     inbox: <InboxWidget key="inbox" />,
     habits: <HabitsWidget key="habits" />,
+    health: <HealthWidget key="health" />,
     quote: <QuoteWidget key="quote" date={date} />,
   };
 
@@ -308,14 +315,6 @@ function InboxWidget() {
         <p className="flex-1 text-sm text-muted">{count ? 'записей ждут разбора' : 'Всё разобрано. Мысль? Жмите «+».'}</p>
         {count ? <Link to="/inbox"><Button size="sm" variant="soft">Разобрать</Button></Link> : <Button size="sm" variant="soft" onClick={() => open()}>Записать</Button>}
       </div>
-    </Card>
-  );
-}
-
-function HabitsWidget() {
-  return (
-    <Card title="Привычки, вода и сон" icon={<Droplets size={18} />}>
-      <p className="text-sm text-muted">Появится на Этапе 5: отметки привычек, стаканы воды и сон — прямо отсюда в одно касание.</p>
     </Card>
   );
 }

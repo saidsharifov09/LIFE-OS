@@ -53,6 +53,18 @@
 `markReview`, `getReview`, `getSetting`, `setSetting`, **`getDay(date)`** — сводка дня (задачи, просроченные,
 3 главных, события, прогресс, деньги) — ответ на «что у меня завтра?».
 
+### Цели, привычки, здоровье — `src/actions/life.ts`
+| Функция | Что делает |
+|---|---|
+| `addGoal({ title, why?, deadline?, milestones? })`, `updateGoal`, `toggleMilestone(goalId, msId)`, `completeGoal`, `deleteGoal`, `listGoals()` | цели и этапы |
+| `addHabit({ title, emoji?, days?, target?, goalId? })`, `updateHabit`, `deleteHabit`, `moveHabit`, `listHabits()` | привычки |
+| `checkHabit(habitId, date?, count?)` | отметить привычку («сделал зарядку») |
+| `setHealth(date, { sleep?, water?, weight?, mood?, feeling? })`, `addWater(±n)`, `getHealth(date)` | здоровье за день («спал 7 часов», «выпил стакан воды») |
+| `addWorkout({ kind, minutes, date? })`, `deleteWorkout`, `workoutsRange` | тренировки |
+| `lifeToday(date)` | привычки на день с отметками + здоровье (для «что у меня сегодня?») |
+
+Расчёты серий и статистики — `src/lib/habits.ts`.
+
 ### Резервные копии и корзина — `src/actions/backup.ts`
 | Функция | Что делает |
 |---|---|

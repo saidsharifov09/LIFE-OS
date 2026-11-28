@@ -8,3 +8,4 @@ export * from './money';
 export * from './misc';
 export * from './day';
 export * from './backup';
+export * from './life';

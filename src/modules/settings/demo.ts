@@ -2,8 +2,10 @@
 import { db, DATA_TABLES } from '@/db/db';
 import {
   addAccount, addDebt, addEvent, addExpense, addIncome, addLater, addNote, addRecurring, addSavings, setBudget, addTask, addTransfer, capture, runAction, setTop,
+  addGoal, addHabit, checkHabit, setHealth, addWorkout, toggleMilestone,
 } from '@/actions';
-import { addDays, startOfWeek, today } from '@/lib/dates';
+import type { HealthDay } from '@/db/types';
+import { addDays, startOfWeek, today, weekday } from '@/lib/dates';
 
 export async function seedDemo() {
   const t = today();
@@ -60,6 +62,36 @@ export async function seedDemo() {
 
     await addNote({ title: 'Идея: приложение для привычек', body: 'Простые отметки, серии, конфетти.', demo });
     await addLater({ title: 'Фильм «Интерстеллар»', kind: 'movie', demo });
+
+    // Цели, привычки, здоровье — с историей за месяц (детерминированно, без Math.random)
+    const goal = await addGoal({ title: 'Пробежать 10 км', why: 'Чтобы чувствовать себя бодрым и гордиться собой', deadline: addDays(t, 90), color: '#2dd4bf', emoji: '🏃', milestones: ['Пробежать 3 км без остановки', 'Пробежать 5 км', 'Пробежать 7 км', 'Пробежать 10 км'], demo });
+    await toggleMilestone(goal.id, goal.milestones[0].id);
+    await addGoal({ title: 'Английский до уровня B1', why: 'Свободно путешествовать и читать в оригинале', deadline: addDays(t, 200), color: '#a78bfa', emoji: '🗣️', progress: 30, demo });
+    const habits = [
+      await addHabit({ title: 'Стакан воды утром', emoji: '💧', color: '#38bdf8', demo }),
+      await addHabit({ title: 'Пробежка', emoji: '🏃', color: '#2dd4bf', days: [0, 2, 4], goalId: goal.id, demo }),
+      await addHabit({ title: 'Чтение 15 минут', emoji: '📚', color: '#fbbf24', demo }),
+      await addHabit({ title: 'Зубы', emoji: '🪥', color: '#a78bfa', target: 2, demo }),
+    ];
+    const pr = (i: number, k: number) => ((i * 7 + k * 13) % 10) / 10; // псевдослучайное 0..0.9
+    const wd = weekday;
+    for (let i = 30; i >= 1; i--) {
+      const d = addDays(t, -i);
+      for (let k = 0; k < habits.length; k++) {
+        const h = habits[k];
+        if (h.days.length && !h.days.includes(wd(d))) continue;
+        if (pr(i, k) < (i < 8 ? 0.85 : 0.7)) await checkHabit(h.id, d, h.target);
+      }
+      const day: Partial<HealthDay> = {
+        sleep: 6 + Math.round(pr(i, 1) * 5) / 2, water: 4 + Math.round(pr(i, 2) * 5),
+        mood: (2 + Math.round(pr(i, 3) * 3)) as HealthDay['mood'], feeling: (2 + Math.round(pr(i, 4) * 3)) as HealthDay['feeling'],
+      };
+      if (i % 4 === 0) day.weight = Math.round((76 - (30 - i) * 0.06 + pr(i, 5) * 0.4) * 10) / 10;
+      await setHealth(d, day, demo);
+      if (wd(d) === 0 || wd(d) === 2 || wd(d) === 4) await addWorkout({ kind: wd(d) === 2 ? 'Зал' : 'Бег', minutes: wd(d) === 2 ? 60 : 30, date: d, demo });
+    }
+    await checkHabit(habits[0].id, t);
+    await setHealth(t, { water: 3, sleep: 7.5 }, demo);
   });
 }
 

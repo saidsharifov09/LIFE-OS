@@ -205,3 +205,72 @@ export interface Setting {
   value: unknown;
   updatedAt: number;
 }
+
+// ---------- Этап 5: цели, привычки, здоровье ----------
+
+export interface Milestone {
+  id: ID;
+  title: string;
+  done: boolean;
+  due?: DateStr | null;
+}
+
+/** Цель с этапами. Прогресс — по этапам или вручную (если этапов нет) */
+export interface Goal extends BaseRecord {
+  title: string;
+  /** Зачем это мне — мотивация, которую видно каждый раз */
+  why?: string;
+  deadline?: DateStr | null;
+  color: string;
+  emoji?: string;
+  milestones: Milestone[];
+  /** Ручной прогресс 0–100 (когда этапов нет) */
+  progress: number;
+  done: boolean;
+  doneAt?: number | null;
+  archived?: boolean;
+}
+
+/** Привычка: в какие дни недели и сколько раз в день */
+export interface Habit extends BaseRecord {
+  title: string;
+  emoji: string;
+  color: string;
+  /** Дни недели 0..6 (0 — понедельник); пусто — каждый день */
+  days: number[];
+  /** Сколько раз в день (например, 2 раза — зубы утром и вечером) */
+  target: number;
+  goalId?: ID | null;
+  order: number;
+  archived?: boolean;
+}
+
+/** Отметка привычки за день. id = `${habitId}_${date}` — одна запись на день, без дублей при синхронизации */
+export interface HabitCheck extends BaseRecord {
+  habitId: ID;
+  date: DateStr;
+  count: number;
+}
+
+/** Здоровье за день. id = `day_${date}` */
+export interface HealthDay extends BaseRecord {
+  date: DateStr;
+  /** Сон, часы */
+  sleep?: number | null;
+  /** Вода, стаканы (250 мл) */
+  water?: number | null;
+  /** Вес, кг */
+  weight?: number | null;
+  /** Настроение 1–5 */
+  mood?: 1 | 2 | 3 | 4 | 5 | null;
+  /** Самочувствие (энергия) 1–5 */
+  feeling?: 1 | 2 | 3 | 4 | 5 | null;
+  note?: string;
+}
+
+export interface Workout extends BaseRecord {
+  date: DateStr;
+  kind: string;
+  minutes: number;
+  note?: string;
+}
