@@ -192,6 +192,11 @@ export class SupabaseApi implements CloudApi {
     return s.access_token;
   }
 
+  /** Действующий токен входа (обновляется при необходимости) — для вызова функций Supabase (ИИ-посредник) */
+  accessToken(): Promise<string> {
+    return this.token();
+  }
+
   async signOut() {
     const s = getSession();
     setSession(null);

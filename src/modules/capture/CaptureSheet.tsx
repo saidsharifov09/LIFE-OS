@@ -3,7 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { CalendarDays, CheckSquare, Clock, Inbox, Wallet, CornerDownLeft } from 'lucide-react';
+import { CalendarDays, CheckSquare, Clock, Inbox, Wallet, CornerDownLeft, Sparkles } from 'lucide-react';
+import { useAssistant } from '@/modules/assistant/AssistantSheet';
 import { capture, processInbox } from '@/actions';
 import { parseCapture } from '@/lib/parse';
 import { fmtRelative } from '@/lib/dates';
@@ -45,6 +46,7 @@ export function CaptureProvider({ children }: { children: ReactNode }) {
 function CaptureSheet({ open, onClose, text, setText }: { open: boolean; onClose: () => void; text: string; setText: (s: string) => void }) {
   const toast = useToast();
   const navigate = useNavigate();
+  const assistant = useAssistant();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hints = useMemo(() => parseCapture(text), [text]);
   const trimmed = text.trim();
@@ -98,6 +100,9 @@ function CaptureSheet({ open, onClose, text, setText }: { open: boolean; onClose
           </Button>
           <Button disabled={!trimmed} onClick={() => save('task')} icon={<CheckSquare size={18} />} variant="soft">
             Задача
+          </Button>
+          <Button disabled={!trimmed} onClick={() => { const t = trimmed; setText(''); onClose(); setTimeout(() => assistant.open(t), 0); }} icon={<Sparkles size={18} />} variant="soft" aria-label="Передать помощнику">
+            Помощнику
           </Button>
           {hints.amount && (
             <Button onClick={() => save(hints.moneyKind === 'income' ? 'income' : 'expense')} icon={<Wallet size={18} />} variant="soft">

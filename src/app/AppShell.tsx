@@ -3,12 +3,13 @@ import { useEffect, type ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { m } from 'framer-motion';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Plus, LayoutGrid, Lock } from 'lucide-react';
+import { Plus, LayoutGrid, Lock, Sparkles } from 'lucide-react';
 import { db } from '@/db/db';
 import { cx } from '@/lib/format';
 import { NAV, BOTTOM_TABS } from './nav';
 import { useVisibleNav } from './useNav';
 import { useCapture } from '@/modules/capture/CaptureSheet';
+import { useAssistant } from '@/modules/assistant/AssistantSheet';
 import { useReminders } from '@/modules/calendar/reminders';
 import { SyncBadge } from '@/modules/sync/SyncBadge';
 import { usePinLock } from '@/modules/pin/PinLock';
@@ -20,6 +21,7 @@ function useInboxCount() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { open } = useCapture();
+  const assistant = useAssistant();
   const inboxCount = useInboxCount();
   const location = useLocation();
   const navigate = useNavigate();
@@ -64,6 +66,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           <Plus size={18} strokeWidth={2.5} /> Быстрая запись <kbd className="ml-1 rounded bg-black/10 px-1.5 text-xs">N</kbd>
         </button>
+        <button
+          onClick={() => assistant.open()}
+          className="focus-ring mb-3 flex h-10 items-center justify-center gap-2 rounded-2xl bg-[rgb(var(--line)/0.07)] text-[14px] font-medium transition hover:bg-[rgb(var(--line)/0.12)] active:scale-[0.98]"
+        >
+          <Sparkles size={16} className="text-accent-teal" /> Помощник <kbd className="ml-1 rounded bg-[rgb(var(--line)/0.1)] px-1.5 text-xs">A</kbd>
+        </button>
         <nav className="no-scrollbar -mx-1 flex-1 overflow-y-auto px-1">
           {nav.filter((n) => n.sidebar).map((n) => (
             <SideLink key={n.path} to={n.path} icon={<n.icon size={18} />} label={n.label} badge={n.path === '/inbox' ? inboxCount : 0} />
@@ -83,6 +91,16 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </m.div>
       </main>
+
+      {/* Помощник (iPhone): рядом с кнопкой захвата, над нижней панелью справа */}
+      <button
+        onClick={() => assistant.open()}
+        aria-label="Помощник"
+        className="glass-strong focus-ring fixed right-4 z-30 grid h-12 w-12 place-items-center rounded-full shadow-lg transition active:scale-90 lg:hidden"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom) + 5.5rem)' }}
+      >
+        <Sparkles size={22} className="text-accent-teal" />
+      </button>
 
       {/* Нижняя панель (iPhone) */}
       <nav className="glass-strong bottom-safe fixed inset-x-3 z-30 flex h-16 items-center justify-around rounded-[1.75rem] px-1 lg:hidden" aria-label="Навигация">
