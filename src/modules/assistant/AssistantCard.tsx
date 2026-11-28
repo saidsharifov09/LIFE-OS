@@ -2,13 +2,14 @@
 import { useEffect, useState } from 'react';
 import { Copy, ExternalLink, Sparkles } from 'lucide-react';
 import { Button, Card, Segmented } from '@/ui/primitives';
+import { functionCode } from '@/sync/functions';
 import { useToast } from '@/ui/overlay';
 import {
   askCloud, cloudReady, CloudAiError, FAIL_TEXT, getAiSettings, PROVIDER_LABEL, setAiSettings,
   type AiLevel, type AiProvider, type AiSettings,
 } from '@/ai/cloud';
 
-const DOCS = 'https://github.com/saidsharifov09/LIFE-OS/blob/main/docs/AI.md#облачный-ии-пошагово-с-iphone';
+const DOCS = 'https://github.com/saidsharifov09/LIFE-OS/blob/main/docs/SETUP-IPHONE.md';
 
 export function AssistantCard() {
   const toast = useToast();
@@ -42,7 +43,7 @@ export function AssistantCard() {
 
   const copyCode = async () => {
     try {
-      const code = (await import('../../../supabase/functions/life-os-ai/index.ts?raw')).default;
+      const code = await functionCode();
       await navigator.clipboard.writeText(code);
       toast.show('Код функции скопирован — вставьте его в редактор функции в Supabase');
     } catch {
@@ -83,7 +84,7 @@ export function AssistantCard() {
       {level === 'cloud' && (
         <div className="mt-3 space-y-3 text-sm">
           <p className="text-muted">
-            Нужно: облако подключено (карточка «Облако»), в Supabase создана функция <code>life-os-ai</code>, в её секретах — бесплатный ключ ИИ.
+            Нужно: облако подключено (карточка «Облако»), в Supabase создана функция <code>life-os</code>, в её секретах — бесплатный ключ ИИ.
             Нет сети или закончился лимит — помощник сам переключится на разбор без ИИ и скажет об этом.
           </p>
           {ready && <p className="rounded-xl bg-amber-400/15 px-3 py-2 text-amber-900 dark:text-amber-100">Сейчас не сработает: {FAIL_TEXT[ready]}.</p>}

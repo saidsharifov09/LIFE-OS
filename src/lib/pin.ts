@@ -62,6 +62,8 @@ export async function setPin(pin: string, lockAfter = getPinConfig()?.lockAfter 
 export function clearPin() {
   write(KEY, null);
   write(FAILS_KEY, null);
+  // Face ID работает только вместе с PIN (src/lib/faceid.ts)
+  write('lifeos.faceid', null);
 }
 
 export function setLockAfter(minutes: number) {

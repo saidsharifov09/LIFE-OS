@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Bell, ChevronRight, Database, Monitor, Moon, Palette, Sparkles, Sun, Trash2 } from 'lucide-react';
+import { ChevronRight, Database, Monitor, Moon, Palette, Sparkles, Sun, Trash2 } from 'lucide-react';
 import { db, DATA_TABLES } from '@/db/db';
 import { useTheme, type ThemeMode } from '@/app/theme';
 import { Button, Card, Chip, PageHeader, Segmented, Switch } from '@/ui/primitives';
@@ -16,10 +16,11 @@ import { SectionsCard } from './SectionsCard';
 import { RatesCard } from '@/modules/finance/RatesCard';
 import { PinCard } from '@/modules/pin/PinCard';
 import { AssistantCard } from '@/modules/assistant/AssistantCard';
+import { NotifyCard } from '@/modules/notify/NotifyCard';
 
 /** Быстрые переходы по длинной странице настроек; id — якоря (#home ведёт сюда с главной) */
 const JUMPS = [
-  { id: 'sync', label: 'Облако' }, { id: 'ai', label: 'Помощник' }, { id: 'backup', label: 'Копии' }, { id: 'home', label: 'Главная' },
+  { id: 'sync', label: 'Облако' }, { id: 'ai', label: 'Помощник' }, { id: 'notify', label: 'Уведомления' }, { id: 'backup', label: 'Копии' }, { id: 'home', label: 'Главная' },
   { id: 'sections', label: 'Разделы' }, { id: 'money', label: 'Валюты' }, { id: 'pin', label: 'PIN-код' },
   { id: 'look', label: 'Оформление' }, { id: 'data', label: 'Данные' },
 ];
@@ -41,7 +42,6 @@ export default function SettingsPage() {
     const t2 = setTimeout(() => go('auto'), 600);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [hash]);
-  const [perm, setPerm] = useState(() => ('Notification' in window ? Notification.permission : 'unsupported'));
 
   return (
     <>
@@ -83,16 +83,7 @@ export default function SettingsPage() {
           <Link to="/design" className="mt-4 inline-block text-sm text-sky-700 dark:text-sky-300">Открыть витрину дизайн-системы →</Link>
         </Card>
 
-        <Card title="Напоминания" icon={<Bell size={18} />}>
-          <p className="text-sm text-muted">
-            Напоминания работают, пока приложение открыто. Без сервера iPhone не покажет уведомление при закрытом приложении —
-            для важного нажмите «В Календарь iPhone» в задаче, событии или платеже: календарь напомнит сам.
-          </p>
-          {perm !== 'unsupported' && perm !== 'granted' && (
-            <Button className="mt-3" size="sm" variant="soft" onClick={async () => setPerm(await Notification.requestPermission())}>Разрешить системные уведомления</Button>
-          )}
-          {perm === 'granted' && <p className="mt-3 text-sm text-emerald-700 dark:text-emerald-300">Системные уведомления разрешены ✓</p>}
-        </Card>
+        <div id="notify" className="scroll-mt-4"><NotifyCard /></div>
 
         <Card title="Демо-данные" icon={<Sparkles size={18} />}>
           <p className="text-sm text-muted">Пример задач, событий и расходов, чтобы посмотреть, как всё выглядит. Удаляются одной кнопкой, ваши записи не трогаются.</p>

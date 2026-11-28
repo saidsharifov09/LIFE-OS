@@ -26,7 +26,8 @@
 | Блокнот, «Посмотреть позже», люди, история | ✅ готово |
 | Поиск, настройки, PIN | ✅ готово |
 | Полировка: перетаскивание пальцем, скорость, доступность | ✅ готово |
-| Помощник (ИИ-чат): без ИИ офлайн + бесплатный облачный ИИ | ✅ готово — [как подключить облачный ИИ](docs/AI.md#облачный-ии-пошагово-с-iphone) |
+| Помощник (ИИ-чат): без ИИ офлайн + бесплатный облачный ИИ | ✅ готово |
+| Уведомления при закрытом приложении, вход по Face ID | ✅ готово — [настройка с iPhone](docs/SETUP-IPHONE.md) |
 
 План — [ROADMAP.md](ROADMAP.md), полное задание — [docs/SPEC.md](docs/SPEC.md).
 
@@ -43,7 +44,7 @@ src/
   ai/           помощник: разбор фраз (rules), план и проверка (plan), выполнение и ответы (run), облачный ИИ (cloud)
   modules/      разделы: home, capture, inbox, tasks, calendar, review, settings, design, …
 docs/           SPEC, DATA, DECISIONS, NOTIFICATIONS, AI, WIDGET, SUPABASE (подключение облака)
-supabase/       schema.sql — таблицы и правила доступа; functions/life-os-ai — ИИ-посредник
+supabase/       schema.sql — таблицы и правила доступа; push.sql — будильник уведомлений; functions/life-os — ИИ и уведомления
 .github/        сборка и публикация на GitHub Pages
 ```
 

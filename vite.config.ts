@@ -52,6 +52,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
         navigateFallback: '/LIFE-OS/index.html',
+        // Приём push-уведомлений (Настройки → Уведомления)
+        importScripts: ['push-sw.js'],
       },
     }),
   ],
