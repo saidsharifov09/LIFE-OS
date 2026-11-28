@@ -53,4 +53,9 @@ describe('ics', () => {
     expect(icsFileName('💳 Подготовить отчёт — 650 ₽')).toBe('podgotovit-otchet-650.ics');
     expect(icsFileName('🎂')).toBe('life-os.ics');
   });
+
+  it('день рождения 29 февраля — в невисокосный год последний день февраля', () => {
+    expect(rrule({ freq: 'yearly', interval: 1 }, '2028-02-29')).toBe('FREQ=YEARLY;BYMONTH=2;BYMONTHDAY=-1');
+    expect(rrule({ freq: 'yearly', interval: 1 }, '2026-12-05')).toBe('FREQ=YEARLY');
+  });
 });

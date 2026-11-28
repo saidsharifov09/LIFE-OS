@@ -55,8 +55,10 @@ export function findCategory(id: string | null | undefined, kind: 'expense' | 'i
 /** Палитра цветов для событий и меток */
 export const PALETTE = ['#38bdf8', '#2dd4bf', '#34d399', '#a78bfa', '#f472b6', '#fbbf24', '#fb923c', '#94a3b8'];
 
-/** Стартовые разделы блокнота */
-export const DEFAULT_NOTE_SECTIONS = [
-  'Для себя', 'Идеи', 'Куда сходить', 'Кому рассказать', 'Что купить', 'Фильмы и сериалы',
-  'Книги', 'Интересные факты', 'Важное', 'Мои проекты', 'Разное',
+/** Стартовые разделы блокнота (с эмодзи) */
+export const DEFAULT_NOTE_SECTIONS: { name: string; icon: string }[] = [
+  { name: 'Для себя', icon: '🙂' }, { name: 'Идеи', icon: '💡' }, { name: 'Куда сходить', icon: '📍' },
+  { name: 'Кому рассказать', icon: '💬' }, { name: 'Что купить', icon: '🛒' }, { name: 'Фильмы и сериалы', icon: '🎬' },
+  { name: 'Книги', icon: '📚' }, { name: 'Интересные факты', icon: '🧠' }, { name: 'Важное', icon: '⭐' },
+  { name: 'Мои проекты', icon: '🚀' }, { name: 'Разное', icon: '📝' },
 ];

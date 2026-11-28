@@ -3,6 +3,7 @@ import { db, DATA_TABLES } from '@/db/db';
 import {
   addAccount, addDebt, addEvent, addExpense, addIncome, addLater, addNote, addRecurring, addSavings, setBudget, addTask, addTransfer, capture, runAction, setTop,
   addGoal, addHabit, checkHabit, setHealth, addWorkout, toggleMilestone,
+  addPerson, addLogEntry, ensureNoteSections, pinNote, markLater,
 } from '@/actions';
 import type { HealthDay } from '@/db/types';
 import { addDays, startOfWeek, today, weekday } from '@/lib/dates';
@@ -60,8 +61,30 @@ export async function seedDemo() {
     await capture('обед 650', demo);
     await capture('посмотреть лекцию про сон https://youtube.com/watch?v=demo', demo);
 
-    await addNote({ title: 'Идея: приложение для привычек', body: 'Простые отметки, серии, конфетти.', demo });
+    // Блокнот, «Посмотреть позже», люди, история (Этап 6)
+    const sec = new Map((await ensureNoteSections()).map((s) => [s.name, s.id]));
+    const idea = await addNote({ title: 'Идея: приложение для привычек', body: 'Простые отметки, серии, конфетти.', sectionId: sec.get('Идеи'), tags: ['проект'], demo });
+    await pinNote(idea.id, true);
+    await addNote({ title: 'Купить', body: 'Молоко\nБатарейки AA\nПодарок Зарине', sectionId: sec.get('Что купить'), tags: ['дом'], demo });
+    await addNote({ title: 'Кофейня на Рудаки', body: 'Говорят, лучший раф в городе. https://maps.google.com/?q=coffee', sectionId: sec.get('Куда сходить'), tags: ['кафе'], demo });
+    await addNote({ title: 'Осьминоги', body: 'У осьминога три сердца и голубая кровь.', sectionId: sec.get('Интересные факты'), demo });
+    await addNote({ title: 'Атомные привычки', body: 'Маленькие шаги каждый день → большой результат.', sectionId: sec.get('Книги'), tags: ['саморазвитие'], demo });
     await addLater({ title: 'Фильм «Интерстеллар»', kind: 'movie', demo });
+    await addLater({ title: 'Лекция про дофамин и СДВГ https://youtube.com/watch?v=demo2', demo });
+    await addLater({ title: 'Статья о тайм-блокинге', url: 'https://habr.com/ru/articles/demo', kind: 'article', demo });
+    await addLater({ title: 'Сериал «Тед Лассо»', demo });
+    const seen = await addLater({ title: 'Книга «Мастер и Маргарита»', kind: 'book', demo });
+    await markLater(seen.id);
+    const zarina = await addPerson({ name: 'Зарина', relation: 'Друг', color: '#f472b6', birthday: addDays(t, 4).slice(5), birthYear: 1996, topics: ['Рассказать про новую работу', 'Вернуть книгу'], lastContact: addDays(t, -9), contactEvery: 14, demo });
+    const mom = await addPerson({ name: 'Мама', relation: 'Семья', color: '#34d399', favorite: true, birthday: '03-08', lastContact: addDays(t, -1), contactEvery: 3, demo });
+    await addPerson({ name: 'Али', relation: 'Друг', color: '#fbbf24', birthday: addDays(t, 40).slice(5), topics: ['Билеты на футбол'], lastContact: addDays(t, -25), contactEvery: 14, demo });
+    await addPerson({ name: 'Брат', relation: 'Семья', color: '#38bdf8', demo });
+    await addLogEntry({ text: 'Утренняя прогулка в парке', kind: 'place', date: t, time: '08:10', demo });
+    await addLogEntry({ text: 'Позвонил маме, обсудили выходные', kind: 'people', date: addDays(t, -1), time: '19:30', personIds: [mom.id], demo });
+    await addLogEntry({ text: 'Узнал, что 20 минут ходьбы помогают сосредоточиться', kind: 'learned', date: addDays(t, -1), time: '12:00', demo });
+    await addLogEntry({ text: 'Решил ложиться до 23:30', kind: 'decision', date: addDays(t, -2), time: '22:40', demo });
+    await addLogEntry({ text: 'Кофе с Зариной', kind: 'people', date: addDays(t, -9), time: '17:00', personIds: [zarina.id], demo });
+    await addLogEntry({ text: 'Спокойный день, всё успел', kind: 'evening', date: addDays(t, -2), time: '23:00', mood: 4, demo });
 
     // Цели, привычки, здоровье — с историей за месяц (детерминированно, без Math.random)
     const goal = await addGoal({ title: 'Пробежать 10 км', why: 'Чтобы чувствовать себя бодрым и гордиться собой', deadline: addDays(t, 90), color: '#2dd4bf', emoji: '🏃', milestones: ['Пробежать 3 км без остановки', 'Пробежать 5 км', 'Пробежать 7 км', 'Пробежать 10 км'], demo });

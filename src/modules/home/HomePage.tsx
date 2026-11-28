@@ -24,8 +24,9 @@ import { quoteOfDay } from './quotes';
 import { BackupBanner } from '@/modules/backup/BackupBanner';
 import { HabitsWidget, HealthWidget } from './LifeWidgets';
 import { SyncBadge } from '@/modules/sync/SyncBadge';
+import { PeopleWidget } from '@/modules/people/PeopleWidget';
 
-export const DEFAULT_WIDGETS = ['review', 'progress', 'top', 'tasks', 'habits', 'health', 'schedule', 'next', 'money', 'inbox', 'quote'] as const;
+export const DEFAULT_WIDGETS = ['review', 'progress', 'top', 'tasks', 'habits', 'health', 'schedule', 'next', 'money', 'people', 'inbox', 'quote'] as const;
 export type WidgetId = (typeof DEFAULT_WIDGETS)[number];
 
 function greeting() {
@@ -67,6 +68,7 @@ export default function HomePage() {
     schedule: <ScheduleWidget key="schedule" day={day} now={now} />,
     next: <NextWidget key="next" day={day} now={now} />,
     money: <MoneyWidget key="money" day={day} />,
+    people: <PeopleWidget key="people" />,
     inbox: <InboxWidget key="inbox" />,
     habits: <HabitsWidget key="habits" />,
     health: <HealthWidget key="health" />,

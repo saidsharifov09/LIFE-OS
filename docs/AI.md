@@ -49,9 +49,24 @@
   Расчёты без БД — `src/lib/finance.ts` (`accountBalances`, `totals`, `byCategory`, `budgetStates`, `toCSV`/`fromCSV`).
 
 ### Прочее — `src/actions/misc.ts`, `src/actions/day.ts`
-`addNote`, `updateNote`, `deleteNote`, `ensureNoteSections`, `addLater`, `updateLater`, `addLogEntry`,
 `markReview`, `getReview`, `getSetting`, `setSetting`, **`getDay(date)`** — сводка дня (задачи, просроченные,
 3 главных, события, прогресс, деньги) — ответ на «что у меня завтра?».
+
+### Блокнот, «Посмотреть позже», история — `src/actions/notes.ts`
+| Функция | Что делает |
+|---|---|
+| `addNote({ title, body?, sectionId?, tags?, images?, pinned? })`, `updateNote`, `pinNote(id, bool)`, `archiveNote(id, bool)`, `deleteNote`, `listNotes({ sectionId?, archived? })` | заметки («запиши идею…») |
+| `listSections()`, `ensureNoteSections()`, `addSection(name, icon?)`, `updateSection`, `moveSection(id, ±1)`, `deleteSection(id)` | разделы блокнота |
+| `addLater({ title, url?, kind? })`, `markLater(id, done)`, `updateLater`, `deleteLater`, `listLater()` | «посмотреть позже» (вид угадывается по ссылке/тексту) |
+| `addLogEntry({ text, kind?, date?, time?, mood?, personIds? })`, `updateLogEntry`, `deleteLogEntry`, `logRange(from, to)`, `logForPerson(id)` | история («сегодня был в парке с Али») |
+
+### Люди — `src/actions/people.ts`
+| Функция | Что делает |
+|---|---|
+| `addPerson({ name, relation?, birthday? 'MM-DD', birthYear?, topics?, contactEvery? })`, `updatePerson`, `deletePerson`, `listPeople()` | люди |
+| `addTopic(personId, text)`, `toggleTopic`, `removeTopic` | «что обсудить с мамой» |
+| `markContact(id, date?)` | «созвонился с Зариной» |
+| `upcomingBirthdays(days)`, `peopleToContact()` | «у кого скоро день рождения?», «кому давно не писал?» |
 
 ### Цели, привычки, здоровье — `src/actions/life.ts`
 | Функция | Что делает |
