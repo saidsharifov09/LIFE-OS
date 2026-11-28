@@ -1,5 +1,5 @@
 // Общие элементы целей и привычек: кнопка отметки привычки (и для главной), выбор эмодзи и дней недели.
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Flame } from 'lucide-react';
 import type { Habit } from '@/db/types';
 import { checkHabit } from '@/actions';
@@ -38,18 +38,18 @@ export function HabitButton({ habit, count, streak, date, compact, onDone }: {
       <span className="relative grid shrink-0 place-items-center" style={{ width: compact ? 40 : 46, height: compact ? 40 : 46 }}>
         <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
           <circle cx="20" cy="20" r="17" fill="none" stroke="rgb(var(--line) / 0.12)" strokeWidth="3" />
-          <motion.circle cx="20" cy="20" r="17" fill="none" stroke={habit.color} strokeWidth="3" strokeLinecap="round"
+          <m.circle cx="20" cy="20" r="17" fill="none" stroke={habit.color} strokeWidth="3" strokeLinecap="round"
             strokeDasharray={2 * Math.PI * 17} initial={false} animate={{ strokeDashoffset: 2 * Math.PI * 17 * (1 - part) }} transition={{ duration: 0.35 }} />
         </svg>
-        <motion.span key={String(done)} initial={{ scale: done ? 0.6 : 1 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 18 }}
-          className={cx('text-xl leading-none', !done && 'opacity-80 grayscale-[35%]')}>{habit.emoji}</motion.span>
+        <m.span key={String(done)} initial={{ scale: done ? 0.6 : 1 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 18 }}
+          className={cx('text-xl leading-none', !done && 'opacity-80 grayscale-[35%]')}>{habit.emoji}</m.span>
       </span>
       <span className="min-w-0 flex-1">
         <span className={cx('block truncate font-medium', done && 'text-muted line-through decoration-1')}>{habit.title}</span>
         <span className="flex items-center gap-2 text-xs text-muted">
           {habit.target > 1 && <span className="tabular-nums">{count}/{habit.target}</span>}
-          {!!streak && <span className="inline-flex items-center gap-0.5 text-amber-600 dark:text-amber-300"><Flame size={12} />{streak}</span>}
-          {done && <span className="text-emerald-600 dark:text-emerald-300">готово</span>}
+          {!!streak && <span className="inline-flex items-center gap-0.5 text-amber-700 dark:text-amber-300"><Flame size={12} />{streak}</span>}
+          {done && <span className="text-emerald-700 dark:text-emerald-300">готово</span>}
         </span>
       </span>
     </button>

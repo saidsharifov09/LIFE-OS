@@ -101,7 +101,7 @@ export function TimeGrid({ days, occurrences, tasks, onOpen, onCreate }: {
       {days.length > 1 && (
         <div className="hairline flex border-b pl-11">
           {days.map((d) => (
-            <div key={d} className={cx('flex-1 py-2 text-center', d === t0 && 'text-accent-teal')}>
+            <div key={d} className={cx('flex-1 py-2 text-center', d === t0 && 'text-teal-700 dark:text-accent-teal')}>
               <div className="text-[11px] uppercase text-muted">{WEEKDAYS_SHORT[weekday(d)]}</div>
               <div className={cx('mx-auto grid h-8 w-8 place-items-center rounded-full text-[15px] font-semibold', d === t0 && 'grad-accent text-slate-950')}>{fromDateStr(d).getDate()}</div>
             </div>

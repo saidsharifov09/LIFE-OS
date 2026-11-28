@@ -1,7 +1,7 @@
 // «Блокнот»: свои разделы, заметки с тегами, ссылками и изображениями, закрепление, архив.
 import { useEffect, useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Archive, Image as ImageIcon, Link2, NotebookPen, Pin, Plus, Search, Settings2, X } from 'lucide-react';
 import type { Note } from '@/db/types';
 import { ensureNoteSections, listNotes, listSections, noteLinks } from '@/actions';
@@ -69,7 +69,7 @@ export default function NotesPage() {
         <nav aria-label="Разделы блокнота" className="-mx-4 mb-3 flex gap-1.5 overflow-x-auto px-4 pb-1 lg:mx-0 lg:mb-0 lg:flex-col lg:overflow-visible lg:px-0">
           <SectionButton active={section === ALL} onClick={() => pick(ALL)} icon="🗂️" name="Все" count={(notes ?? []).filter((n) => !n.archived).length} />
           {sections.map((s) => <SectionButton key={s.id} active={section === s.id} onClick={() => pick(s.id)} icon={s.icon ?? '📁'} name={s.name} count={counts.get(s.id) ?? 0} />)}
-          <button onClick={() => setManage(true)} className="focus-ring inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-medium text-sky-600 hover:bg-[rgb(var(--line)/0.06)] lg:mt-1 lg:h-10 lg:rounded-2xl dark:text-sky-300">
+          <button onClick={() => setManage(true)} className="focus-ring inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-medium text-sky-700 hover:bg-[rgb(var(--line)/0.06)] lg:mt-1 lg:h-10 lg:rounded-2xl dark:text-sky-300">
             <Settings2 size={15} /> Разделы
           </button>
         </nav>
@@ -106,13 +106,13 @@ export default function NotesPage() {
                   const links = noteLinks(n).length;
                   const img = n.images?.[0];
                   return (
-                    <motion.li key={n.id} layout="position" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }}>
+                    <m.li key={n.id} layout="position" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }}>
                       <button onClick={() => setEdit(n)} className="glass focus-ring flex h-full w-full flex-col overflow-hidden rounded-3xl text-left transition active:scale-[0.99]">
                         {img && <img src={img.data} alt="" className="h-36 w-full object-cover" loading="lazy" />}
                         <span className="flex flex-1 flex-col gap-1.5 p-4">
                           <span className="flex items-start gap-2">
                             <span className="min-w-0 flex-1 font-semibold leading-snug">{n.title || <span className="text-muted">Без названия</span>}</span>
-                            {n.pinned && <Pin size={15} className="mt-0.5 shrink-0 rotate-45 text-amber-500 dark:text-amber-300" aria-label="Закреплена" />}
+                            {n.pinned && <Pin size={15} className="mt-0.5 shrink-0 rotate-45 text-amber-700 dark:text-amber-300" aria-label="Закреплена" />}
                           </span>
                           {n.body && <span className="line-clamp-3 whitespace-pre-line text-sm text-muted">{n.body}</span>}
                           <span className="mt-auto flex flex-wrap items-center gap-1.5 pt-1 text-xs text-muted">
@@ -123,7 +123,7 @@ export default function NotesPage() {
                           </span>
                         </span>
                       </button>
-                    </motion.li>
+                    </m.li>
                   );
                 })}
               </AnimatePresence>

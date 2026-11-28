@@ -28,7 +28,7 @@ export function PinCard() {
         <Button className="mt-3" variant="primary" size="sm" icon={<Lock size={15} />} onClick={() => setFlow({ step: 'new' })}>Включить PIN</Button>
       ) : (
         <>
-          <p className="mt-3 text-sm font-medium text-emerald-600 dark:text-emerald-300">PIN включён ✓ ({cfg.length} цифр)</p>
+          <p className="mt-3 text-sm font-medium text-emerald-700 dark:text-emerald-300">PIN включён ✓ ({cfg.length} цифр)</p>
           <div className="mt-3">
             <Label>Блокировать, если приложение было свёрнуто</Label>
             <Segmented<string>

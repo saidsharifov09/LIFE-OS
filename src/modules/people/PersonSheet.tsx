@@ -145,9 +145,9 @@ export function PersonSheet({ open, person, onClose }: { open: boolean; person: 
             </select>
             <Input value={d.year} onChange={(e) => set('year', e.target.value.replace(/\D/g, '').slice(0, 4))} inputMode="numeric" placeholder="Год" aria-label="Год рождения (необязательно)" className="!w-24 !py-2.5" />
           </div>
-          {badDate ? <p className="mt-1 text-xs text-red-500 dark:text-red-300">Такой даты нет</p>
+          {badDate ? <p className="mt-1 text-xs text-red-700 dark:text-red-300">Такой даты нет</p>
             : <p className="mt-1 text-xs text-muted">Год — по желанию (чтобы видеть, сколько исполнится). Напоминание — на главной за неделю; для системного — «ДР в Календарь».</p>}
-          {(d.day || d.month) && <button type="button" className="mt-1 text-xs text-sky-600 dark:text-sky-300" onClick={() => setD({ ...d, day: '', month: '', year: '' })}>Убрать дату</button>}
+          {(d.day || d.month) && <button type="button" className="mt-1 text-xs text-sky-700 dark:text-sky-300" onClick={() => setD({ ...d, day: '', month: '', year: '' })}>Убрать дату</button>}
         </div>
 
         <div>

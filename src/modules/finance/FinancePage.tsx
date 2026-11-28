@@ -62,7 +62,7 @@ export default function FinancePage() {
           </div>
         }
       />
-      <div className="no-scrollbar -mx-4 mb-4 flex gap-1.5 overflow-x-auto px-4 lg:mx-0 lg:flex-wrap lg:px-0" role="tablist" aria-label="Разделы финансов">
+      <div className="no-scrollbar -mx-4 mb-4 flex gap-1.5 overflow-x-auto px-4 lg:mx-0 lg:flex-wrap lg:px-0" role="group" aria-label="Разделы финансов">
         {TABS.map((t) => (
           <Chip key={t.id} active={tab === t.id} onClick={() => setTab(t.id)} icon={<t.icon size={14} />}>{t.label}</Chip>
         ))}
@@ -124,7 +124,7 @@ function Overview({ data, onTx, onNew, onAll, onTab }: { data: FinanceData; onTx
                     <span className="block truncate font-medium">{a.name}</span>
                     <span className="text-xs text-muted">{ACCOUNT_KINDS.find((k) => k.id === a.kind)?.name}</span>
                   </span>
-                  <Amount value={data.balances.get(a.id) ?? 0} currency={a.currency} className={cx((data.balances.get(a.id) ?? 0) < 0 && 'text-red-500 dark:text-red-300')} />
+                  <Amount value={data.balances.get(a.id) ?? 0} currency={a.currency} className={cx((data.balances.get(a.id) ?? 0) < 0 && 'text-red-700 dark:text-red-300')} />
                 </button>
               </li>
             ))}
@@ -137,23 +137,23 @@ function Overview({ data, onTx, onNew, onAll, onTab }: { data: FinanceData; onTx
 
       <div className="grid grid-cols-1 gap-4">
         {states.length > 0 && (
-          <Card title="Бюджеты" icon={<TriangleAlert size={18} />} action={<button className="text-sm text-sky-600 dark:text-sky-300" onClick={() => onTab('budgets')}>Все</button>}>
+          <Card title="Бюджеты" icon={<TriangleAlert size={18} />} action={<button className="text-sm text-sky-700 dark:text-sky-300" onClick={() => onTab('budgets')}>Все</button>}>
             <ul className="space-y-3">
               {states.map((s) => (
                 <li key={s.budget.id}>
                   <div className="mb-1 flex justify-between text-sm">
                     <span>{s.budget.category === '__total' ? 'Весь месяц' : findCategory(s.budget.category)?.name}</span>
-                    <span className={cx('tabular-nums', s.level === 'over' ? 'font-semibold text-red-500 dark:text-red-300' : 'text-muted')}>
+                    <span className={cx('tabular-nums', s.level === 'over' ? 'font-semibold text-red-700 dark:text-red-300' : 'text-muted')}>
                       {s.level === 'over' ? `сверх на ${fmtMoney(Math.round(-s.left))}` : `осталось ${fmtMoney(Math.round(s.left))}`}
                     </span>
                   </div>
-                  <Bar value={s.percent} danger={s.level === 'over'} warn={s.level === 'warn'} />
+                  <Bar value={s.percent} danger={s.level === 'over'} warn={s.level === 'warn'} label={`Бюджет: ${s.budget.category === '__total' ? 'весь месяц' : findCategory(s.budget.category)?.name ?? ''}`} />
                 </li>
               ))}
             </ul>
           </Card>
         )}
-        <Card title="Ближайшие платежи" icon={<CalendarClock size={18} />} action={<button className="text-sm text-sky-600 dark:text-sky-300" onClick={() => onTab('recurring')}>Все</button>}>
+        <Card title="Ближайшие платежи" icon={<CalendarClock size={18} />} action={<button className="text-sm text-sky-700 dark:text-sky-300" onClick={() => onTab('recurring')}>Все</button>}>
           {upcoming.length === 0 ? (
             <p className="text-sm text-muted">Добавьте подписки и регулярные платежи — здесь будет видно, что спишется скоро.</p>
           ) : (
@@ -165,7 +165,7 @@ function Overview({ data, onTx, onNew, onAll, onTab }: { data: FinanceData; onTx
                     <CategoryBadge id={r.category} kind={r.kind} size={36} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[15px] font-medium">{r.title}</span>
-                      <span className={cx('text-xs', overdue ? 'text-red-500 dark:text-red-300' : 'text-muted')}>{overdue ? 'Просрочено · ' : ''}{fmtRelative(r.nextDate!)}</span>
+                      <span className={cx('text-xs', overdue ? 'text-red-700 dark:text-red-300' : 'text-muted')}>{overdue ? 'Просрочено · ' : ''}{fmtRelative(r.nextDate!)}</span>
                     </span>
                     <Amount value={r.amount} currency={r.currency} />
                     {r.nextDate! <= t0 && (
@@ -179,7 +179,7 @@ function Overview({ data, onTx, onNew, onAll, onTab }: { data: FinanceData; onTx
         </Card>
       </div>
 
-      <Card title="Последние операции" icon={<Receipt size={18} />} className="lg:col-span-2" action={<button className="text-sm text-sky-600 dark:text-sky-300" onClick={onAll}>Все</button>}>
+      <Card title="Последние операции" icon={<Receipt size={18} />} className="lg:col-span-2" action={<button className="text-sm text-sky-700 dark:text-sky-300" onClick={onAll}>Все</button>}>
         {data.txs.length === 0 ? (
           <Empty title="Операций пока нет" hint="Нажмите «Расход» вверху — сумма, категория, готово. Или «кофе 250» через «+»." />
         ) : (

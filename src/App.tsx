@@ -1,6 +1,7 @@
 // Маршруты приложения. HashRouter — чтобы обновление страницы на GitHub Pages не давало 404.
 import { lazy, Suspense } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { LazyMotion } from 'framer-motion';
 import { ThemeProvider } from './app/theme';
 import { AppShell } from './app/AppShell';
 import { ToastProvider } from './ui/overlay';
@@ -27,8 +28,12 @@ const PeoplePage = lazy(() => import('./modules/people/PeoplePage'));
 const LogPage = lazy(() => import('./modules/log/LogPage'));
 const SearchPage = lazy(() => import('./modules/search/SearchPage'));
 
+const loadMotion = () => import('./app/motionFeatures').then((r) => r.default);
+
 export default function App() {
   return (
+    // strict: случайный `motion.*` вместо `m.*` сразу даст ошибку в разработке
+    <LazyMotion features={loadMotion} strict>
     <ThemeProvider>
       <PinLockProvider>
       <HashRouter>
@@ -65,5 +70,6 @@ export default function App() {
       </PinLockProvider>
       <ConfettiHost />
     </ThemeProvider>
+    </LazyMotion>
   );
 }

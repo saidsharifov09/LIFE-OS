@@ -51,7 +51,7 @@ export default function PeoplePage() {
                           <span className="block truncate font-medium">{p.name}</span>
                           <span className="block text-xs text-muted">{fmtBirthday(p.birthday!)}{b!.age !== null ? ` · исполнится ${b!.age}` : ''}</span>
                         </span>
-                        <span className={cx('shrink-0 text-sm font-semibold', b!.daysLeft === 0 ? 'text-pink-600 dark:text-pink-300' : b!.daysLeft <= 7 ? 'text-amber-600 dark:text-amber-300' : 'text-muted')}>{birthdayText(b!.daysLeft)}</span>
+                        <span className={cx('shrink-0 text-sm font-semibold', b!.daysLeft === 0 ? 'text-pink-600 dark:text-pink-300' : b!.daysLeft <= 7 ? 'text-amber-700 dark:text-amber-300' : 'text-muted')}>{birthdayText(b!.daysLeft)}</span>
                       </button>
                     </li>
                   ))}

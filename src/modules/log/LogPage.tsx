@@ -2,7 +2,7 @@
 // Геолокация НЕ отслеживается: место — просто текстом.
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { History, Send, Trash2 } from 'lucide-react';
 import type { LogEntry, LogKind, Person } from '@/db/types';
 import { addLogEntry, deleteLogEntry, listPeople, logRange, updateLogEntry } from '@/actions';
@@ -114,7 +114,7 @@ export default function LogPage() {
                     const mood = e.mood ? MOODS.find((m) => m.v === e.mood) : null;
                     const names = (e.personIds ?? []).map((id) => byId.get(id)?.name).filter(Boolean);
                     return (
-                      <motion.li key={e.id} layout="position" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <m.li key={e.id} layout="position" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <div role="button" tabIndex={0} onClick={() => setEdit(e)} onKeyDown={(ev) => ev.key === 'Enter' && setEdit(e)}
                           className="focus-ring flex cursor-pointer gap-3 px-4 py-3 text-left transition hover:bg-[rgb(var(--line)/0.04)]">
                           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[rgb(var(--line)/0.06)] text-lg" title={k.name}>{k.emoji}</span>
@@ -125,7 +125,7 @@ export default function LogPage() {
                             </span>
                           </span>
                         </div>
-                      </motion.li>
+                      </m.li>
                     );
                   })}
                 </AnimatePresence>

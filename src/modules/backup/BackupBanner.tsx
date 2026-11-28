@@ -12,7 +12,7 @@ export function BackupBanner() {
   const days = state.lastAt ? Math.floor((Date.now() - state.lastAt) / 86400000) : null;
   return (
     <Card className="flex flex-wrap items-center gap-3 md:col-span-2 xl:col-span-3">
-      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-400/15 text-amber-600 dark:text-amber-300"><ShieldAlert size={22} /></div>
+      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-400/15 text-amber-700 dark:text-amber-300"><ShieldAlert size={22} /></div>
       <div className="min-w-0 flex-1">
         <p className="font-semibold">Пора сделать резервную копию</p>
         <p className="text-sm text-muted">{days !== null ? `Последняя — ${days} дн. назад.` : 'Копий ещё не было.'} 10 секунд — и данные в безопасности.</p>

@@ -15,7 +15,7 @@ export function Linkify({ text, className }: { text: string; className?: string 
         const tail = p.slice(url.length);
         return (
           <Fragment key={i}>
-            <a href={url} target="_blank" rel="noopener noreferrer" className="text-sky-600 underline decoration-sky-400/40 underline-offset-2 dark:text-sky-300" onClick={(e) => e.stopPropagation()}>
+            <a href={url} target="_blank" rel="noopener noreferrer" className="text-sky-700 underline decoration-sky-400/40 underline-offset-2 dark:text-sky-300" onClick={(e) => e.stopPropagation()}>
               {linkLabel(url)}
             </a>
             {tail}

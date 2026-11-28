@@ -69,15 +69,15 @@ function BudgetRow({ state: s, name, onEdit }: { state: ReturnType<typeof budget
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-1.5 font-medium">
             {name ?? cat?.name}
-            {s.level === 'over' && <TriangleAlert size={15} className="text-red-500 dark:text-red-300" aria-label="Превышен" />}
+            {s.level === 'over' && <TriangleAlert size={15} className="text-red-700 dark:text-red-300" aria-label="Превышен" />}
           </span>
           <span className="text-xs text-muted tabular-nums">{fmtMoney(Math.round(s.spent))} из {fmtMoney(s.budget.amount)}</span>
         </span>
-        <span className={cx('text-sm tabular-nums', s.level === 'over' ? 'font-semibold text-red-500 dark:text-red-300' : s.level === 'warn' ? 'text-amber-600 dark:text-amber-300' : 'text-muted')}>
+        <span className={cx('text-sm tabular-nums', s.level === 'over' ? 'font-semibold text-red-700 dark:text-red-300' : s.level === 'warn' ? 'text-amber-700 dark:text-amber-300' : 'text-muted')}>
           {s.level === 'over' ? `+${fmtMoney(Math.round(-s.left))} сверх` : `осталось ${fmtMoney(Math.round(s.left))}`}
         </span>
       </div>
-      <Bar value={s.percent} danger={s.level === 'over'} warn={s.level === 'warn'} />
+      <Bar value={s.percent} danger={s.level === 'over'} warn={s.level === 'warn'} label={`Бюджет: ${s.budget.category === '__total' ? 'весь месяц' : findCategory(s.budget.category)?.name ?? ''}`} />
     </button>
   );
 }
@@ -146,7 +146,7 @@ export function RecurringTab({ data }: { data: FinanceData }) {
                         <span className="truncate">{r.title}</span>
                         {r.subscription && <span className="shrink-0 rounded-md bg-sky-400/15 px-1.5 text-[10px] font-semibold uppercase text-sky-700 dark:text-sky-200">подписка</span>}
                       </span>
-                      <span className={cx('block truncate text-xs', due !== null && due < 0 ? 'text-red-500 dark:text-red-300' : 'text-muted')}>
+                      <span className={cx('block truncate text-xs', due !== null && due < 0 ? 'text-red-700 dark:text-red-300' : 'text-muted')}>
                         {!r.active ? 'Пауза' : r.nextDate ? `${due! < 0 ? 'Просрочено · ' : ''}${fmtRelative(r.nextDate)}${due! > 1 ? ` · через ${due} ${plural(due!, ['день', 'дня', 'дней'])}` : ''}` : 'Завершён'} · {describeRecurrence(r.recurrence).toLowerCase()}
                       </span>
                       <Amount value={r.amount} currency={r.currency} type={r.kind === 'income' ? 'income' : undefined} className="text-sm sm:hidden" />
@@ -278,7 +278,7 @@ export function DebtsTab({ data }: { data: FinanceData }) {
                       <div className="flex items-center gap-3">
                         <button className="focus-ring min-w-0 flex-1 text-left" onClick={() => setEdit(d)}>
                           <span className="block truncate font-medium">{d.person}</span>
-                          <span className={cx('block truncate text-xs', overdue ? 'text-red-500 dark:text-red-300' : 'text-muted')}>
+                          <span className={cx('block truncate text-xs', overdue ? 'text-red-700 dark:text-red-300' : 'text-muted')}>
                             {d.closed ? 'Закрыт ✓' : d.due ? `${overdue ? 'Просрочено · ' : 'до '}${fmtRelative(d.due)}` : 'без срока'}{d.note ? ` · ${d.note}` : ''}
                           </span>
                         </button>
@@ -288,7 +288,7 @@ export function DebtsTab({ data }: { data: FinanceData }) {
                         </span>
                         {!d.closed && <Button size="sm" variant="soft" onClick={() => setRepay(d)}>Вернули</Button>}
                       </div>
-                      {d.paid > 0 && !d.closed && <Bar value={(d.paid / d.amount) * 100} className="mt-2" />}
+                      {d.paid > 0 && !d.closed && <Bar value={(d.paid / d.amount) * 100} className="mt-2" label={`Возврат долга: ${d.person}`} />}
                     </li>
                   );
                 })}

@@ -66,7 +66,7 @@ export function BackupCard() {
         и восстановите на любом устройстве.
       </p>
       <p className="mt-2 text-sm">
-        {lastAt ? <>Последняя копия: <b>{fmtWhen(lastAt)}</b></> : <span className="text-amber-600 dark:text-amber-300">Копий ещё не было</span>}
+        {lastAt ? <>Последняя копия: <b>{fmtWhen(lastAt)}</b></> : <span className="text-amber-700 dark:text-amber-300">Копий ещё не было</span>}
       </p>
 
       <div className="mt-4 flex items-center gap-3">

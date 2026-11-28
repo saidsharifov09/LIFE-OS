@@ -24,7 +24,7 @@ export function SyncCard() {
         : !session ? <LoginStep onDone={rerender} onChangeServer={() => { setConfig(null); rerender(); }} />
         : st.status === 'locked' ? <PasswordStep onDone={rerender} />
         : <ReadyStep onChange={rerender} />}
-      {st.error && st.status !== 'error' && <p className="mt-3 text-sm text-red-600 dark:text-red-300">{st.error}</p>}
+      {st.error && st.status !== 'error' && <p className="mt-3 text-sm text-red-700 dark:text-red-300">{st.error}</p>}
     </Card>
   );
 }
@@ -47,7 +47,7 @@ function ConnectStep({ onDone }: { onDone: () => void }) {
         Данные будут синхронизироваться между iPhone и ноутбуком через ваш бесплатный проект Supabase.
         Всё шифруется на устройстве <b>до отправки</b> — в облаке лежит только шифр.
       </p>
-      <a href={GUIDE_URL} target="_blank" rel="noreferrer" className="inline-block text-sm font-medium text-sky-600 dark:text-sky-300">Пошаговая инструкция: как создать проект с iPhone (5 минут) →</a>
+      <a href={GUIDE_URL} target="_blank" rel="noreferrer" className="inline-block text-sm font-medium text-sky-700 dark:text-sky-300">Пошаговая инструкция: как создать проект с iPhone (5 минут) →</a>
       <Field label="Адрес проекта (Project URL)"><Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://xxxx.supabase.co" inputMode="url" autoCapitalize="off" autoCorrect="off" spellCheck={false} /></Field>
       <Field label="Публичный ключ (anon / publishable)"><Input value={key} onChange={(e) => setKey(e.target.value)} placeholder="eyJhbGciOi… или sb_publishable_…" autoCapitalize="off" autoCorrect="off" spellCheck={false} /></Field>
       <p className="text-xs text-muted">Ключ публичный — его безопасно хранить на устройстве; данные защищает вход по email и правила доступа (RLS). Хранится только на этом устройстве.</p>
@@ -185,7 +185,7 @@ function ReadyStep({ onChange }: { onChange: () => void }) {
         {st.lastSyncAt ? `Последняя синхронизация: ${new Date(st.lastSyncAt).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}` : 'Ещё не синхронизировалось'}
         {st.last && (st.last.pulled || st.last.pushed) ? ` · получено ${st.last.pulled}, отправлено ${st.last.pushed}` : ''}
       </p>
-      {st.status === 'error' && <p className="text-sm text-red-600 dark:text-red-300">Ошибка: {st.error}</p>}
+      {st.status === 'error' && <p className="text-sm text-red-700 dark:text-red-300">Ошибка: {st.error}</p>}
       <p className="text-xs text-muted">Синхронизация идёт сама: при запуске, через пару секунд после изменений и раз в минуту. При конфликте побеждает более новая правка.</p>
       <div className="flex flex-wrap gap-2">
         <Button variant="soft" icon={<RefreshCw size={16} className={st.status === 'syncing' ? 'animate-spin' : ''} />} disabled={st.status === 'syncing'} onClick={() => syncNow()}>Синхронизировать сейчас</Button>

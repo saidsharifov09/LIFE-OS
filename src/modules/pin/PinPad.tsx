@@ -1,6 +1,6 @@
 // Ввод PIN: точки + крупная цифровая клавиатура (под палец на iPhone) + цифры с клавиатуры ноутбука.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { motion, useAnimationControls } from 'framer-motion';
+import { m, useAnimationControls } from 'framer-motion';
 import { Delete } from 'lucide-react';
 import { cx } from '@/lib/format';
 
@@ -71,17 +71,17 @@ export function PinPad({ title, hint, length, onSubmit, disabled, keyboard = tru
   return (
     <div className="flex flex-col items-center text-center">
       <p className="text-lg font-semibold">{title}</p>
-      <p className={cx('mt-1 min-h-[1.25rem] text-sm', error && !disabled ? 'text-red-500 dark:text-red-300' : 'text-muted')} role={error ? 'alert' : undefined} aria-live="polite">{disabled ? hint : error ?? hint}</p>
-      <motion.div animate={shake} className="my-6 flex gap-3.5" aria-label={`Введено цифр: ${pin.length}`} role="status">
+      <p className={cx('mt-1 min-h-[1.25rem] text-sm', error && !disabled ? 'text-red-700 dark:text-red-300' : 'text-muted')} role={error ? 'alert' : undefined} aria-live="polite">{disabled ? hint : error ?? hint}</p>
+      <m.div animate={shake} className="my-6 flex gap-3.5" aria-label={`Введено цифр: ${pin.length}`} role="status">
         {Array.from({ length: slots }, (_, i) => (
           <span key={i} className={cx('h-3.5 w-3.5 rounded-full border-2 transition', i < pin.length ? 'border-transparent bg-[rgb(var(--fg))]' : 'border-[rgb(var(--line)/0.35)]')} />
         ))}
-      </motion.div>
+      </m.div>
       <div className="grid grid-cols-3 gap-3.5" aria-disabled={disabled}>
         {KEYS.map((k) => <Key key={k} onClick={() => press(k)} disabled={disabled}>{k}</Key>)}
         {length ? <span /> : (
           <button type="button" onClick={() => submit(pin)} disabled={pin.length < 4 || busy}
-            className="focus-ring h-[72px] w-[72px] rounded-full text-[15px] font-semibold text-sky-600 disabled:opacity-30 dark:text-sky-300">Далее</button>
+            className="focus-ring h-[72px] w-[72px] rounded-full text-[15px] font-semibold text-sky-700 disabled:opacity-30 dark:text-sky-300">Далее</button>
         )}
         <Key onClick={() => press('0')} disabled={disabled}>0</Key>
         <button type="button" onClick={back} aria-label="Стереть" disabled={!pin}

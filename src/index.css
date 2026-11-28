@@ -108,3 +108,13 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ---------- Перетаскивание (src/ui/touchDrag.ts) ---------- */
+/* Долгое нажатие не выделяет текст и не открывает системное меню iPhone */
+[data-draggable] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+[data-drag-source] { opacity: 0.35; }
+.is-dragging, .is-dragging * { cursor: grabbing !important; -webkit-user-select: none; user-select: none; }
+.drop-zone { transition: box-shadow 0.15s, background-color 0.15s; }
+[data-drop][data-drag-over] { box-shadow: inset 0 0 0 2px rgb(56 189 248 / 0.75); background-color: rgb(56 189 248 / 0.12); }
+/* Пока тащим — колонки не «прилипают», иначе автопрокрутка у края стоит на месте */
+.is-dragging [data-drag-scroll] { scroll-snap-type: none; }

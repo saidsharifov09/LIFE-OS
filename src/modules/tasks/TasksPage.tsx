@@ -1,11 +1,12 @@
 // Раздел «Задачи»: группы по датам, фильтры, вид списком и канбаном.
-import { useMemo, useState, type DragEvent } from 'react';
+import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Columns3, List, Plus, Sparkles } from 'lucide-react';
 import { db } from '@/db/db';
 import type { DateStr, Task } from '@/db/types';
 import { useOpenParam } from '@/app/useOpenParam';
+import { useTouchDrag } from '@/ui/touchDrag';
 import { addTask, alive, bucketOf, moveTask, sortTasks, type TaskBucket } from '@/actions';
 import { addDays, startOfWeek, today } from '@/lib/dates';
 import { parseCapture } from '@/lib/parse';
@@ -116,7 +117,7 @@ export default function TasksPage() {
         <div className="no-scrollbar -mx-4 mb-2 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
           {BUCKETS.map((b) => (
             <Chip key={b.id} active={filter === b.id} onClick={() => setFilter(b.id)}
-              className={b.id === 'overdue' && counts.overdue ? '!text-red-500 dark:!text-red-400' : ''}>
+              className={b.id === 'overdue' && counts.overdue ? '!text-red-700 dark:!text-red-400' : ''}>
               {b.label}{b.id !== 'done' && counts[b.id === 'today' ? 'today' : b.id] ? <span className="opacity-70">{b.id === 'today' ? (counts.today ?? 0) + (counts.overdue ?? 0) : counts[b.id]}</span> : null}
             </Chip>
           ))}
@@ -156,43 +157,42 @@ export default function TasksPage() {
 
 function Kanban({ tasks, onOpen }: { tasks: Task[]; onOpen: (t: Task) => void }) {
   const toast = useToast();
-  const [over, setOver] = useState<string | null>(null);
-  const onDrop = async (e: DragEvent, col: (typeof KANBAN)[number]) => {
-    e.preventDefault();
-    setOver(null);
-    const id = e.dataTransfer.getData('text/plain');
-    if (!id) return;
-    await moveTask(id, col.target());
+  // Перетаскивание: мышью — сразу, пальцем — долгим нажатием (src/ui/touchDrag.ts)
+  const drop = async (t: Task, colId: string) => {
+    const col = KANBAN.find((c) => c.id === colId);
+    if (!col || bucketOf(t) === col.id) return;
+    await moveTask(t.id, col.target());
     toast.show(`Перенесено: ${col.label.toLowerCase()}`, { undo: true });
   };
   return (
-    <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
-      {KANBAN.map((col) => {
-        const items = tasks.filter((t) => bucketOf(t) === col.id);
-        if (col.id === 'overdue' && !items.length) return null;
-        return (
-          <Card
-            key={col.id}
-            pad={false}
-            className={cx('w-[80vw] max-w-[300px] shrink-0 snap-start p-2 transition sm:w-72', over === col.id && 'ring-2 ring-sky-400/60')}
-            onDragOver={(e: DragEvent) => { e.preventDefault(); setOver(col.id); }}
-            onDragLeave={() => setOver(null)}
-            onDrop={(e: DragEvent) => onDrop(e, col)}
-          >
-            <div className="flex items-center justify-between px-2 py-2">
-              <h3 className={cx('text-sm font-semibold', col.id === 'overdue' && 'text-red-500 dark:text-red-400')}>{col.label}</h3>
-              <span className="text-xs text-muted">{items.length}</span>
-            </div>
-            <div className="min-h-16 space-y-1.5">
-              {items.map((t) => (
-                <ul key={t.id} draggable onDragStart={(e) => e.dataTransfer.setData('text/plain', t.id)} className="cursor-grab rounded-2xl bg-[rgb(var(--line)/0.04)] active:cursor-grabbing">
-                  <TaskItem task={t} onOpen={onOpen} compact />
-                </ul>
-              ))}
-            </div>
-          </Card>
-        );
-      })}
-    </div>
+    <>
+      <p className="mb-2 text-xs text-muted">Перенести: <span className="lg:hidden">удерживайте карточку и ведите пальцем</span><span className="hidden lg:inline">перетащите карточку мышью</span> в другую колонку.</p>
+      <div data-drag-scroll className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
+        {KANBAN.map((col) => {
+          const items = tasks.filter((t) => bucketOf(t) === col.id);
+          if (col.id === 'overdue' && !items.length) return null;
+          return (
+            <Card key={col.id} pad={false} data-drop={col.id} className="drop-zone w-[80vw] max-w-[300px] shrink-0 snap-start p-2 sm:w-72">
+              <div className="flex items-center justify-between px-2 py-2">
+                <h3 className={cx('text-sm font-semibold', col.id === 'overdue' && 'text-red-700 dark:text-red-400')}>{col.label}</h3>
+                <span className="text-xs text-muted">{items.length}</span>
+              </div>
+              <div className="min-h-16 space-y-1.5">
+                {items.map((t) => <KanbanCard key={t.id} task={t} onOpen={onOpen} onDrop={(key) => drop(t, key)} />)}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function KanbanCard({ task, onOpen, onDrop }: { task: Task; onOpen: (t: Task) => void; onDrop: (key: string) => void }) {
+  const drag = useTouchDrag({ onDrop });
+  return (
+    <ul {...drag} className="cursor-grab rounded-2xl bg-[rgb(var(--line)/0.04)] active:cursor-grabbing">
+      <TaskItem task={task} onOpen={onOpen} compact />
+    </ul>
   );
 }

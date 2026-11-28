@@ -1,7 +1,7 @@
 // «Посмотреть позже»: ссылки, видео, фильмы, сериалы, статьи, книги — со статусом «посмотрел».
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Bookmark, BookOpen, Check as CheckIcon, ExternalLink, FileText, Film, Link2, MoreHorizontal, Plus, Trash2, Tv, Video } from 'lucide-react';
 import type { LaterItem, LaterKind } from '@/db/types';
 import { addLater, deleteLater, listLater, markLater, updateLater } from '@/actions';
@@ -82,7 +82,7 @@ export default function LaterPage() {
             {list.map((it) => {
               const k = kindOf(it.kind);
               return (
-                <motion.li key={it.id} layout="position" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 30 }} className="glass flex items-center gap-3 rounded-2xl p-2.5 pl-3">
+                <m.li key={it.id} layout="position" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 30 }} className="glass flex items-center gap-3 rounded-2xl p-2.5 pl-3">
                   <button type="button" aria-label={it.done ? `Вернуть «${it.title}» в список` : `Посмотрел: ${it.title}`} aria-pressed={it.done}
                     onClick={async () => { await markLater(it.id, !it.done); toast.show(it.done ? 'Вернул в список' : 'Отмечено: посмотрел ✓', { undo: true }); }}
                     className={cx('focus-ring grid h-8 w-8 shrink-0 place-items-center rounded-full transition active:scale-90', it.done ? 'bg-emerald-400 text-slate-950' : 'ring-2 ring-[rgb(var(--line)/0.3)] hover:ring-emerald-400')}>
@@ -94,9 +94,9 @@ export default function LaterPage() {
                     <span className="block truncate text-xs text-muted">{k.name}{it.url ? ` · ${linkLabel(it.url)}` : ''}{it.note ? ` · ${it.note}` : ''}</span>
                   </button>
                   {isSafeUrl(it.url) && (
-                    <a href={it.url} target="_blank" rel="noopener noreferrer" aria-label={`Открыть ${it.title}`} className="focus-ring grid h-10 w-10 shrink-0 place-items-center rounded-xl text-sky-600 hover:bg-sky-400/10 dark:text-sky-300"><ExternalLink size={18} /></a>
+                    <a href={it.url} target="_blank" rel="noopener noreferrer" aria-label={`Открыть ${it.title}`} className="focus-ring grid h-10 w-10 shrink-0 place-items-center rounded-xl text-sky-700 hover:bg-sky-400/10 dark:text-sky-300"><ExternalLink size={18} /></a>
                   )}
-                </motion.li>
+                </m.li>
               );
             })}
           </AnimatePresence>

@@ -95,7 +95,7 @@ function Morning() {
           <ul className="space-y-1">
             {day.overdue.map((t) => (
               <li key={t.id} className="flex items-center gap-2 rounded-2xl px-2 py-1.5">
-                <span className="min-w-0 flex-1 truncate">{t.title} <span className="text-xs text-red-500 dark:text-red-400">· {fmtRelative(t.date!)}</span></span>
+                <span className="min-w-0 flex-1 truncate">{t.title} <span className="text-xs text-red-700 dark:text-red-400">· {fmtRelative(t.date!)}</span></span>
                 <Button size="sm" variant="soft" onClick={() => moveTask(t.id, t0)}>Сегодня</Button>
                 <Button size="sm" variant="ghost" onClick={() => moveTask(t.id, null)}>Потом</Button>
               </li>

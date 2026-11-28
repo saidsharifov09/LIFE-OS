@@ -1,5 +1,5 @@
 // Строка задачи — используется на главной, в «Задачах», в обзорах дня.
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { ArrowRight, CalendarDays, Clock, Flag, ListChecks, Repeat, Star } from 'lucide-react';
 import type { Task } from '@/db/types';
 import { completeTask, getDay, moveTask } from '@/actions';
@@ -47,7 +47,7 @@ export function TaskItem({ task, onOpen, showDate = true, compact }: {
   const subDone = task.subtasks.filter((s) => s.done).length;
 
   return (
-    <motion.li
+    <m.li
       layout
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
@@ -66,7 +66,7 @@ export function TaskItem({ task, onOpen, showDate = true, compact }: {
         </div>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[12px] text-muted">
           {showDate && task.date && (
-            <span className={cx('inline-flex items-center gap-1', overdue && 'font-medium text-red-500 dark:text-red-400')}>
+            <span className={cx('inline-flex items-center gap-1', overdue && 'font-medium text-red-700 dark:text-red-400')}>
               <CalendarDays size={12} />{fmtRelative(task.date)}
             </span>
           )}
@@ -92,6 +92,6 @@ export function TaskItem({ task, onOpen, showDate = true, compact }: {
           <ArrowRight size={17} />
         </button>
       )}
-    </motion.li>
+    </m.li>
   );
 }

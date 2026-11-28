@@ -29,9 +29,9 @@ export function HabitsWidget() {
     if (data.length && data.every((x) => (cs.find((c) => c.habitId === x.h.id)?.count ?? 0) >= x.h.target)) fireConfetti();
   }, 50);
   return (
-    <Card title="Привычки" icon={<Flame size={18} />} action={<Link to="/goals" className="text-sm text-sky-600 dark:text-sky-300">{data.length ? `${done}/${data.length}` : 'Все'}</Link>}>
+    <Card title="Привычки" icon={<Flame size={18} />} action={<Link to="/goals" className="text-sm text-sky-700 dark:text-sky-300">{data.length ? `${done}/${data.length}` : 'Все'}</Link>}>
       {data.length === 0 ? (
-        <Empty title="На сегодня привычек нет" hint={<Link to="/goals" className="text-sky-600 dark:text-sky-300">Добавить привычку →</Link>} />
+        <Empty title="На сегодня привычек нет" hint={<Link to="/goals" className="text-sky-700 dark:text-sky-300">Добавить привычку →</Link>} />
       ) : (
         <div className="-mx-1 space-y-0.5">
           {data.map(({ h, count, streak }) => <HabitButton key={h.id} habit={h} count={count} streak={streak} compact onDone={onDone} />)}
@@ -47,7 +47,7 @@ export function HealthWidget() {
   const water = day?.water ?? 0;
   const sleep = day?.sleep ?? null;
   return (
-    <Card title="Вода, сон, настроение" icon={<Droplets size={18} />} action={<Link to="/health" className="text-sm text-sky-600 dark:text-sky-300"><HeartPulse size={16} className="inline" /> Здоровье</Link>}>
+    <Card title="Вода, сон, настроение" icon={<Droplets size={18} />} action={<Link to="/health" className="text-sm text-sky-700 dark:text-sky-300"><HeartPulse size={16} className="inline" /> Здоровье</Link>}>
       <div className="flex items-center gap-2">
         <span className="flex-1 text-sm"><b className="text-xl tabular-nums">{water}</b><span className="text-muted"> / {WATER_GOAL} стаканов</span></span>
         <Button size="icon" variant="soft" className="!h-10 !w-10" aria-label="Минус стакан" disabled={!water} onClick={() => addWater(-1)}><Minus size={17} /></Button>

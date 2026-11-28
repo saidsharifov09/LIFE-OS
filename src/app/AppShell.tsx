@@ -1,7 +1,7 @@
 // Каркас: боковая панель на ноутбуке, нижняя панель + кнопка захвата на iPhone.
 import { useEffect, type ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Plus, LayoutGrid, Lock } from 'lucide-react';
 import { db } from '@/db/db';
@@ -73,7 +73,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Контент */}
       <main className="pt-safe lg:pl-[16.5rem]">
-        <motion.div
+        <m.div
           key={location.pathname.split('/')[1]}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -81,7 +81,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           className="mx-auto max-w-6xl px-4 pb-32 pt-3 sm:px-6 lg:px-8 lg:pb-10 lg:pt-6"
         >
           {children}
-        </motion.div>
+        </m.div>
       </main>
 
       {/* Нижняя панель (iPhone) */}
@@ -112,7 +112,7 @@ function SideLink({ to, icon, label, badge }: { to: string; icon: ReactNode; lab
     >
       {({ isActive }) => (
         <>
-          {isActive && <motion.span layoutId="side-active" className="absolute inset-0 -z-10 rounded-xl bg-[rgb(var(--line)/0.09)]" transition={{ type: 'spring', bounce: 0.2, duration: 0.35 }} />}
+          {isActive && <m.span layoutId="side-active" className="absolute inset-0 -z-10 rounded-xl bg-[rgb(var(--line)/0.09)]" transition={{ type: 'spring', bounce: 0.2, duration: 0.35 }} />}
           <span className={isActive ? 'text-accent-teal' : ''}>{icon}</span>
           <span className="flex-1">{label}</span>
           {!!badge && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-sky-400/20 px-1.5 text-[11px] font-semibold text-sky-700 dark:text-sky-200">{badge}</span>}
